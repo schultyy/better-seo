@@ -1,4 +1,5 @@
 import matter = require('gray-matter');
+import markdownToAst = require("@textlint/markdown-to-ast");
 
 export class AnalyzerResult {
     constructor(public title: string, public message: string) {}
@@ -8,13 +9,15 @@ export class FileAnalyzer {
     constructor(public markdownFile: string){}
 
     public analyze(keyword: string) : Array<AnalyzerResult> {
-        const parse = require("@textlint/markdown-to-ast").parse;
-        const AST = parse(this.markdownFile);
+        const AST = markdownToAst.parse(this.markdownFile);
         const children: Array<any> = AST.children;
         const analyzerResults = [];
         let header = children.find(child => child.type === 'Header' && child.depth === 1);
         if(!header) {
             analyzerResults.push(new AnalyzerResult('Article Title', 'Not found'));
+        }
+        if(header && header.raw.indexOf(keyword) === -1) {
+            analyzerResults.push(new AnalyzerResult('Article Title', `Keyword ${keyword} not found`));
         }
         return analyzerResults;
     }
