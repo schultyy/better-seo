@@ -21,17 +21,26 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		let frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString());
-		let fileAnalyzer = new FileAnalyzer(currentFile.toString());
+		const frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString());
+		const fileAnalyzer = new FileAnalyzer(currentFile.toString());
+		const keywordsFromFile = extractKeywords(currentFile);
 
-		let keyword = await askForKeyword();
-
-		if(!keyword) {
-			return;
+		if(keywordsFromFile.length === 0) {
+			const keyword = await askForKeyword();
+			if(!keyword) {
+				return;
+			}
+			keywordsFromFile.push(keyword);
 		}
 
-		let frontmatterResults = frontmatterAnalyzer.analyze(keyword);
-		let contentResults = fileAnalyzer.analyze(keyword);
+		const frontmatterResults = keywordsFromFile.flatMap(keyword => {
+			return frontmatterAnalyzer.analyze(keyword);
+		});
+
+		const contentResults = keywordsFromFile.flatMap(keyword => {
+			return fileAnalyzer.analyze(keyword);
+		});
+
 		const frontmatterTreeProvider = new TreeProvider(frontmatterResults);
 		const contentTreeProvider = new TreeProvider(contentResults);
 		vscode.window.registerTreeDataProvider('frontmatter', frontmatterTreeProvider);
