@@ -11,19 +11,22 @@ export default class FrontmatterAnalyzer {
         const frontmatter = matter(this.markdownFile);
         const { seo_title, seo_description } = frontmatter.data;
         const results = [];
-        if(!seo_title) {
+        if (!seo_title) {
             results.push(new AnalyzerResult('seo_title', 'not found'));
         }
         if (seo_title && seo_title.indexOf(keyword) === -1) {
             results.push(new AnalyzerResult('seo_title', `Keyword '${keyword}' not found`));
         }
-        if(!seo_description) {
+        if (seo_title && seo_title.length > 60) {
+            results.push(new AnalyzerResult('seo_title', 'SEO Title should have 60 Characters max.'));
+        }
+        if (!seo_description) {
             results.push(new AnalyzerResult('seo_description', 'not found'));
         }
         if (seo_description && seo_description.indexOf(keyword) === -1) {
             results.push(new AnalyzerResult('seo_description', `Keyword '${keyword}' not found`));
         }
-        if(seo_description && seo_description.length > 160) {
+        if (seo_description && seo_description.length > 160) {
             results.push(new AnalyzerResult('seo_description', 'SEO Description should 160 characters max.'));
         }
 
