@@ -9,6 +9,7 @@ export default class FrontmatterAnalyzer {
 
     public analyze(keyword: string) : Array<AnalyzerResult> {
         const frontmatter = matter(this.markdownFile);
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         const { seo_title, seo_description } = frontmatter.data;
         const results = [];
         if (!seo_title) {
