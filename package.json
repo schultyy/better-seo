@@ -19,7 +19,28 @@
 				"command": "better-seo.analyze",
 				"title": "Better SEO: Analyze"
 			}
-		]
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "seo-explorer",
+					"title": "SEO Explorer",
+					"icon": "resources/betterseo icon.png"
+				}
+			]
+		},
+		"views": {
+			"seo-explorer": [
+			  {
+				"id": "frontmatter",
+				"name": "Frontmatter"
+			  },
+			  {
+				"id": "text",
+				"name": "Text"
+			  }
+			]
+		  }
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
