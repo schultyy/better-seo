@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import FrontmatterAnalyzer from './frontmatter';
+import { FileAnalyzer, FrontmatterAnalyzer } from './analyzer';
 import TreeProvider from './treeProvider';
 
 // this method is called when your extension is activated
@@ -20,7 +20,8 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		let analyzer = new FrontmatterAnalyzer(currentFile.toString());
+		let frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString());
+		let fileAnalyzer = new FileAnalyzer(currentFile.toString());
 
 		let keyword = await vscode.window.showInputBox({
 			placeHolder: "Enter keyword",
@@ -32,10 +33,14 @@ export function activate(context: vscode.ExtensionContext) {
 		if(!keyword) {
 			return;
 		}
-		let results = analyzer.analyze(keyword);
-		const treeProvider = new TreeProvider(results);
-		vscode.window.registerTreeDataProvider('frontmatter', treeProvider);
-		treeProvider.refresh();
+		let frontmatterResults = frontmatterAnalyzer.analyze(keyword);
+		let contentResults = fileAnalyzer.analyze(keyword);
+		const frontmatterTreeProvider = new TreeProvider(frontmatterResults);
+		const contentTreeProvider = new TreeProvider(contentResults);
+		vscode.window.registerTreeDataProvider('frontmatter', frontmatterTreeProvider);
+		vscode.window.registerTreeDataProvider('text', contentTreeProvider);
+		frontmatterTreeProvider.refresh();
+		contentTreeProvider.refresh();
 	});
 
 	context.subscriptions.push(disposable);

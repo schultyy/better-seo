@@ -4,7 +4,23 @@ export class AnalyzerResult {
     constructor(public title: string, public message: string) {}
 }
 
-export default class FrontmatterAnalyzer {
+export class FileAnalyzer {
+    constructor(public markdownFile: string){}
+
+    public analyze(keyword: string) : Array<AnalyzerResult> {
+        const parse = require("@textlint/markdown-to-ast").parse;
+        const AST = parse(this.markdownFile);
+        const children: Array<any> = AST.children;
+        const analyzerResults = [];
+        let header = children.find(child => child.type === 'Header' && child.depth === 1);
+        if(!header) {
+            analyzerResults.push(new AnalyzerResult('Article Title', 'Not found'));
+        }
+        return analyzerResults;
+    }
+}
+
+export class FrontmatterAnalyzer {
     constructor(public markdownFile: string){}
 
     public analyze(keyword: string) : Array<AnalyzerResult> {

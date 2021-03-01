@@ -1,5 +1,5 @@
 import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem } from "vscode";
-import { AnalyzerResult } from "./frontmatter";
+import { AnalyzerResult } from "./analyzer";
 
 export default class TreeProvider implements TreeDataProvider<Finding> {
     private _onDidChangeTreeData: EventEmitter<any> = new EventEmitter<any>();
