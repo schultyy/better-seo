@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import FrontmatterAnalyzer from './frontmatter';
+import TreeProvider from './treeProvider';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -18,6 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if(!currentFile) {
 			return;
 		}
+
 		let analyzer = new FrontmatterAnalyzer(currentFile.toString());
 
 		let keyword = await vscode.window.showInputBox({
@@ -30,7 +32,10 @@ export function activate(context: vscode.ExtensionContext) {
 		if(!keyword) {
 			return;
 		}
-		console.log(analyzer.analyze(keyword));
+		let results = analyzer.analyze(keyword);
+		const treeProvider = new TreeProvider(results);
+		vscode.window.registerTreeDataProvider('frontmatter', treeProvider);
+		treeProvider.refresh();
 	});
 
 	context.subscriptions.push(disposable);
