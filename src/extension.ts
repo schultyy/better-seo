@@ -16,6 +16,11 @@ export function activate(context: vscode.ExtensionContext) {
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	let disposable = vscode.commands.registerCommand('better-seo.analyze', async () => {
+		if(!vscode.window.activeTextEditor?.document.fileName.endsWith("md")) {
+			vscode.window.showErrorMessage("Better SEO: Current file is not a Markdown file");
+			return;
+		}
+
 		const currentFile = vscode.window.activeTextEditor?.document.getText();
 		if(!currentFile) {
 			return;
