@@ -5,14 +5,29 @@ export class AnalyzerResult {
     constructor(public title: string, public message: string) {}
 }
 
+interface AstChild {
+    type: string;
+    value: string;
+    raw: string;
+    depth: number | undefined;
+}
+
 export class FileAnalyzer {
-    constructor(public markdownFile: string){}
+    private readonly children: Array<AstChild>;
+    constructor(public markdownFile: string){
+        const AST = markdownToAst.parse(this.markdownFile);
+        this.children = AST.children;
+    }
 
     public analyze(keyword: string) : Array<AnalyzerResult> {
-        const AST = markdownToAst.parse(this.markdownFile);
-        const children: Array<any> = AST.children;
+        let results: Array<AnalyzerResult> = [];
+        results = results.concat(this.validateHeader(keyword));
+        return results;
+    }
+
+    private validateHeader(keyword: string) : Array<AnalyzerResult> {
         const analyzerResults = [];
-        let header = children.find(child => child.type === 'Header' && child.depth === 1);
+        let header = this.children.find(child => child.type === 'Header' && child.depth === 1);
         if(!header) {
             analyzerResults.push(new AnalyzerResult('Article Title', 'Not found'));
         }
