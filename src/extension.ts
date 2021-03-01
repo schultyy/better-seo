@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { FileAnalyzer, FrontmatterAnalyzer } from './analyzer';
+import extractKeywords from './keywords';
 import TreeProvider from './treeProvider';
 
 // this method is called when your extension is activated
@@ -23,16 +24,12 @@ export function activate(context: vscode.ExtensionContext) {
 		let frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString());
 		let fileAnalyzer = new FileAnalyzer(currentFile.toString());
 
-		let keyword = await vscode.window.showInputBox({
-			placeHolder: "Enter keyword",
-			validateInput: text => {
-				return text.length > 0 ? null : "Please enter a keyword";
-			}
-		});
+		let keyword = await askForKeyword();
 
 		if(!keyword) {
 			return;
 		}
+
 		let frontmatterResults = frontmatterAnalyzer.analyze(keyword);
 		let contentResults = fileAnalyzer.analyze(keyword);
 		const frontmatterTreeProvider = new TreeProvider(frontmatterResults);
@@ -44,6 +41,15 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(disposable);
+}
+
+async function askForKeyword() : Promise<string | undefined> {
+	return vscode.window.showInputBox({
+		placeHolder: "Enter keyword",
+		validateInput: text => {
+			return text.length > 0 ? null : "Please enter a keyword";
+		}
+	});
 }
 
 // this method is called when your extension is deactivated
