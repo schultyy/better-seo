@@ -1,16 +1,27 @@
 # better-seo README
 
-This is the README for your extension "better-seo". After writing up a brief description, we recommend including the following sections.
+This is a Visual Studio Code plugin for developers using VSCode to write blog posts. If you care about SEO, you need this extension.
+
+`better-seo` supports you in producing high-quality, SEO-compliant content.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+The main user interface consists of the `Better SEO: Analyze` command. It reads the current Markdown file, trying to read the file's frontmatter and extracts the following information:
 
-For example if there is an image subfolder under your extension project workspace:
+```
+---
+keywords:
+    - A
+    - B
+    - C
+seo_title:
+seo_description:
+---
+```
 
-\!\[feature X\]\(images/feature-x.png\)
+It also validates:
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- The blog post's title (The first occurrence of a first-level headline)
 
 ## Requirements
 
