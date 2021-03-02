@@ -2,7 +2,18 @@
 	"name": "better-seo",
 	"displayName": "better-seo",
 	"description": "Avoid common SEO traps while you write your Blogpost",
-	"version": "0.0.1",
+	"license": "MIT",
+	"author": {
+		"email": "jan@work-with-jan.com",
+		"name": "Jan Schulte",
+		"url": "https://beyondfeaturetalk.com"
+	},
+	"publisher": "janschulte",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/schultyy/better-seo"
+	},
+	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.53.0"
 	},
