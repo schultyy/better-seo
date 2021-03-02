@@ -1,4 +1,3 @@
-import { KeyObject } from "crypto";
 import matter = require("gray-matter");
 
 export default function extractKeywords(currentFile: string) :Array<string> {
