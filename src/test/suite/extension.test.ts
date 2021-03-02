@@ -64,6 +64,24 @@ seo_description: Learn how to seo perfectly
 					assert.strictEqual(results.length, 0);
 				});
 			});
+			describe("Without matching keyword", () => {
+				const analyzer = new FrontmatterAnalyzer(markdown);
+				const results = analyzer.analyze("Banana");
+
+				test("returns 2 findings", () => {
+					assert.strictEqual(results.length, 2);
+				});
+
+				test("complains about missing keyword in seo_title", () => {
+					const result = results.find(result => result.title === 'seo_title');
+					assert.strictEqual(result?.title, 'seo_title');
+				});
+
+				test("complains about missing keyword in seo_description", () => {
+					const result = results.find(result => result.title === 'seo_description');
+					assert.strictEqual(result?.title, 'seo_description');
+				});
+			});
 		});
 	});
 });
