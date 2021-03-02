@@ -54,6 +54,20 @@ seo_description: Learn how to seo perfectly
 					assert.strictEqual(results.length, 0);
 				});
 			});
+
+			describe('Without matching Keyword', () => {
+				const analyzer = new FileAnalyzer(markdown);
+				const results = analyzer.analyze("Banana");
+
+				test('returns one finding', () => {
+					assert.strictEqual(results.length, 1);
+				});
+
+				test('complains about missing keyword in title', () => {
+					const result = results.find(result => result.title === 'Article Title');
+					assert.strictEqual(result?.title, 'Article Title');
+				});
+			});
 		});
 		describe('FrontmatterAnalyzer', () => {
 			describe('With matching Keyword', () => {
