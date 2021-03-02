@@ -27,13 +27,13 @@ An article needs a `seo_title` and `seo_description`. These are the equivalent f
 
 Press `Ctrl+Shift+P`/`Cmd+Shift+P` to open the command menu and type in `Better SEO: Analyze`.
 
-![Invoke analyze command](./resources/invoke-command.png)
+![Invoke analyze command](resources/invoke-command.png)
 
 If you have `keywords` is present in your Markdown file, Better SEO will use the keywords in your file for the analysis. If `keywords` is not present, it will ask you to provide one.
 
 Once the analysis is completed, you will see the results in the TreeView:
 
-![Analysis Results](./resources/analysis-results.png)
+![Analysis Results](resources/analysis-results.png)
 
 ### What it validates
 
