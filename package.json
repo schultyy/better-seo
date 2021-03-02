@@ -22,17 +22,12 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:better-seo.analyze",
         "onCommand:better-seo.refresh",
         "onView:seo-explorer"
     ],
     "main": "./dist/extension.js",
     "contributes": {
         "commands": [
-            {
-                "command": "better-seo.analyze",
-                "title": "Better SEO: Analyze"
-            },
             {
                 "command": "better-seo.refresh",
                 "title": "refresh",
@@ -46,7 +41,7 @@
             "view/title": [
                 {
                     "command": "better-seo.refresh",
-                    "when": "view == frontmatter",
+                    "when": "view == seo-results",
                     "group": "navigation"
                 }
             ]
@@ -63,12 +58,8 @@
         "views": {
             "seo-explorer": [
                 {
-                    "id": "frontmatter",
-                    "name": "Frontmatter"
-                },
-                {
-                    "id": "text",
-                    "name": "Text"
+                    "id": "seo-results",
+                    "name": "SEO Results"
                 }
             ]
         }

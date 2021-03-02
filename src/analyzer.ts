@@ -1,8 +1,13 @@
 import matter = require('gray-matter');
 import markdownToAst = require("@textlint/markdown-to-ast");
 
+export enum ResultType {
+    frontmatter,
+    body
+}
+
 export class AnalyzerResult {
-    constructor(public title: string, public message: string) {}
+    constructor(public title: string, public message: string, public resultType: ResultType) {}
 }
 
 interface AstChild {
@@ -32,11 +37,11 @@ export class FileAnalyzer {
         let text = firstParagraph?.children?.find(child => child.type === 'Str');
 
         if(!text) {
-            analyzerResults.push(new AnalyzerResult('First Paragraph', 'Not found'));
+            analyzerResults.push(new AnalyzerResult('First Paragraph', 'Not found', ResultType.body));
         }
 
         if(text && text.value.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-            analyzerResults.push(new AnalyzerResult('First Paragraph', `Keyword ${keyword} not found`));
+            analyzerResults.push(new AnalyzerResult('First Paragraph', `Keyword ${keyword} not found`, ResultType.body));
         }
         return analyzerResults;
     }
@@ -45,10 +50,10 @@ export class FileAnalyzer {
         const analyzerResults = [];
         let header = this.children.find(child => child.type === 'Header' && child.depth === 1);
         if(!header) {
-            analyzerResults.push(new AnalyzerResult('Article Title', 'Not found'));
+            analyzerResults.push(new AnalyzerResult('Article Title', 'Not found', ResultType.body));
         }
         if(header && header.raw.indexOf(keyword) === -1) {
-            analyzerResults.push(new AnalyzerResult('Article Title', `Keyword ${keyword} not found`));
+            analyzerResults.push(new AnalyzerResult('Article Title', `Keyword ${keyword} not found`, ResultType.body));
         }
         return analyzerResults;
     }
@@ -63,22 +68,22 @@ export class FrontmatterAnalyzer {
         const { seo_title, seo_description } = frontmatter.data;
         const results = [];
         if (!seo_title) {
-            results.push(new AnalyzerResult('seo_title', 'not found'));
+            results.push(new AnalyzerResult('seo_title', 'not found', ResultType.frontmatter));
         }
         if (seo_title && seo_title.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-            results.push(new AnalyzerResult('seo_title', `Keyword '${keyword}' not found`));
+            results.push(new AnalyzerResult('seo_title', `Keyword '${keyword}' not found`, ResultType.frontmatter));
         }
         if (seo_title && seo_title.length > 60) {
-            results.push(new AnalyzerResult('seo_title', 'SEO Title should have 60 Characters max.'));
+            results.push(new AnalyzerResult('seo_title', 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
         }
         if (!seo_description) {
-            results.push(new AnalyzerResult('seo_description', 'not found'));
+            results.push(new AnalyzerResult('seo_description', 'not found', ResultType.frontmatter));
         }
         if (seo_description && seo_description.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-            results.push(new AnalyzerResult('seo_description', `Keyword '${keyword}' not found`));
+            results.push(new AnalyzerResult('seo_description', `Keyword '${keyword}' not found`, ResultType.frontmatter));
         }
         if (seo_description && seo_description.length > 160) {
-            results.push(new AnalyzerResult('seo_description', 'SEO Description should 160 characters max.'));
+            results.push(new AnalyzerResult('seo_description', 'SEO Description should 160 characters max.', ResultType.frontmatter));
         }
 
         return results;
