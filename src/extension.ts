@@ -12,6 +12,43 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 
+
+	vscode.commands.registerCommand('better-seo.refresh', () => {
+		console.log('refershing....');
+		if(!vscode.window.activeTextEditor?.document.fileName.endsWith("md")) {
+			vscode.window.showErrorMessage("Better SEO: Current file is not a Markdown file");
+			return;
+		}
+
+		const currentFile = vscode.window.activeTextEditor?.document.getText();
+		if(!currentFile) {
+			return;
+		}
+		const frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString());
+		const fileAnalyzer = new FileAnalyzer(currentFile.toString());
+		const keywordsFromFile = extractKeywords(currentFile);
+
+		if(keywordsFromFile.length === 0) {
+			vscode.window.showErrorMessage("Better SEO: No keywords found");
+			return;
+		}
+
+		const frontmatterResults = keywordsFromFile.flatMap(keyword => {
+			return frontmatterAnalyzer.analyze(keyword);
+		});
+
+		const contentResults = keywordsFromFile.flatMap(keyword => {
+			return fileAnalyzer.analyze(keyword);
+		});
+
+		const frontmatterTreeProvider = new TreeProvider(frontmatterResults);
+		const contentTreeProvider = new TreeProvider(contentResults);
+		vscode.window.registerTreeDataProvider('frontmatter', frontmatterTreeProvider);
+		vscode.window.registerTreeDataProvider('text', contentTreeProvider);
+		frontmatterTreeProvider.refresh();
+		contentTreeProvider.refresh();
+	});
+
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
