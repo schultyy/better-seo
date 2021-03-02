@@ -9,7 +9,8 @@ interface AstChild {
     type: string;
     value: string;
     raw: string;
-    depth: number | undefined;
+    depth?: number;
+    children?: Array<AstChild>;
 }
 
 export class FileAnalyzer {
@@ -21,8 +22,23 @@ export class FileAnalyzer {
 
     public analyze(keyword: string) : Array<AnalyzerResult> {
         let results: Array<AnalyzerResult> = [];
-        results = results.concat(this.validateHeader(keyword));
+        results = results.concat(this.validateHeader(keyword), this.validateFirstParagraph(keyword));
         return results;
+    }
+
+    private validateFirstParagraph(keyword: string) : Array<AnalyzerResult> {
+        const analyzerResults = [];
+        let firstParagraph = this.children.find(child => child.type === 'Paragraph');
+        let text = firstParagraph?.children?.find(child => child.type === 'Str');
+
+        if(!text) {
+            analyzerResults.push(new AnalyzerResult('First Paragraph', 'Not found'));
+        }
+
+        if(text && text.value.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+            analyzerResults.push(new AnalyzerResult('First Paragraph', `Keyword ${keyword} not found`));
+        }
+        return analyzerResults;
     }
 
     private validateHeader(keyword: string) : Array<AnalyzerResult> {

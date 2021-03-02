@@ -44,7 +44,13 @@ Keywords:
 seo_title: This is about seo
 seo_description: Learn how to seo perfectly
 ---
-# How to do SEO`;
+# How to do SEO
+
+Lorem Ipsum Dolor Sit Amet with SEO And among Other Things.
+
+
+This, that something, else. Dolor Sit Amet.`;
+
 		describe('FileAnalyzer', () => {
 			describe('With matching Keyword', () => {
 				const analyzer = new FileAnalyzer(markdown);
@@ -59,13 +65,18 @@ seo_description: Learn how to seo perfectly
 				const analyzer = new FileAnalyzer(markdown);
 				const results = analyzer.analyze("Banana");
 
-				test('returns one finding', () => {
-					assert.strictEqual(results.length, 1);
+				test('returns two findings', () => {
+					assert.strictEqual(results.length, 2);
 				});
 
 				test('complains about missing keyword in title', () => {
 					const result = results.find(result => result.title === 'Article Title');
 					assert.strictEqual(result?.title, 'Article Title');
+				});
+
+				test('complains about missing keyword in first paragraph', () => {
+					const result = results.find(result => result.title === 'First Paragraph');
+					assert.strictEqual(result?.title, 'First Paragraph');
 				});
 			});
 		});
