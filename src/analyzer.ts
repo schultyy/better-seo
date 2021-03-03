@@ -93,10 +93,10 @@ export class FrontmatterAnalyzer {
 
         const results = [];
         if (!seoDescription) {
-            results.push(new AnalyzerError(this.configuration.descriptionField, 'not found', ResultType.frontmatter));
+            results.push(new AnalyzerError(this.configuration.descriptionField, 'Field not found', ResultType.frontmatter));
         }
         if (!seoTitle) {
-            results.push(new AnalyzerError(this.configuration.titleField, 'not found', ResultType.frontmatter));
+            results.push(new AnalyzerError(this.configuration.titleField, 'Field not found', ResultType.frontmatter));
         }
 
         return keywords.flatMap(keyword => {
