@@ -18,7 +18,6 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
     }
 
     getTreeItem(element: Finding): TreeItem {
-        console.log('Get Treee Item');
         return element;
     }
     getChildren(element?: Finding): ProviderResult<Finding[]> {
