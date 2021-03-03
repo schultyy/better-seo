@@ -8,19 +8,19 @@ import extractKeywords from '../../keywords';
 
 suite('Extension Test Suite', () => {
     const markdown = `---
-    Keywords:
-    - Foo
-    - Bar
-    seo_title: This is about seo
-    seo_description: Learn how to seo perfectly
-    ---
-    # How to do SEO`;
+Keywords:
+- Foo
+- Bar
+seo_title: This is about seo
+seo_description: Learn how to seo perfectly
+---
+# How to do SEO`;
 
     const markdownNoKeywords = `---
-    seo_title: This is about seo
-    seo_description: Learn how to seo perfectly
-    ---
-    # Foo`;
+seo_title: This is about seo
+seo_description: Learn how to seo perfectly
+---
+# Foo`;
 
     vscode.window.showInformationMessage('Start all tests.');
     describe('keywords.ts', () => {
@@ -38,17 +38,17 @@ suite('Extension Test Suite', () => {
 
     describe('analyzer.ts', () => {
         const markdown = `---
-        Keywords:
-        - SEO
-        seo_title: This is about seo
-        seo_description: Learn how to seo perfectly
-        ---
-        # How to do SEO
+Keywords:
+- SEO
+seo_title: This is about seo
+seo_description: Learn how to seo perfectly
+---
+# How to do SEO
 
-        Lorem Ipsum Dolor Sit Amet with SEO And among Other Things.
+Lorem Ipsum Dolor Sit Amet with SEO And among Other Things.
 
 
-        This, that something, else. Dolor Sit Amet.`;
+This, that something, else. Dolor Sit Amet.`;
 
         describe('FileAnalyzer', () => {
             describe('With matching Keyword', () => {
@@ -76,6 +76,50 @@ suite('Extension Test Suite', () => {
                 test('complains about missing keyword in first paragraph', () => {
                     const result = results.find(result => result.title === 'First Paragraph');
                     assert.strictEqual(result?.title, 'First Paragraph');
+                });
+            });
+
+            describe("Analyze Headline Structure", () => {
+                const withCorrectHeaders =
+`---
+keywords:
+- SEO
+seo_title: How to SEO
+seo_description: How to SEO - A practical Guide
+---
+# How to SEO - A guide for all
+Lorem Ipsum
+## Introduction
+Lorem Ipsum
+## How To
+Lorem Ipsum
+`;
+                const withIncorrectHeaders =
+`---
+keywords:
+- SEO
+seo_title: How to SEO
+seo_description: How to SEO - A practical Guide
+---
+
+# How to SEO - A guide for all
+Lorem Ipsum
+# Introduction
+Lorem Ipsum
+## How To
+`;
+                test('does return an error with incorrect headers', () => {
+                    const analyzer = new FileAnalyzer(withIncorrectHeaders);
+                    const results = analyzer.analyze("SEO");
+                    const headerError = results.find(result => result.title === 'Header');
+                    assert.ok(headerError);
+                });
+
+                test('does not return an error when header structure is correct', () => {
+                    const analyzer = new FileAnalyzer(withCorrectHeaders);
+                    const results = analyzer.analyze("SEO");
+                    const headerError = results.find(result => result.title === 'Header');
+                    assert.ok(headerError === null || headerError === undefined);
                 });
             });
         });
@@ -108,12 +152,12 @@ suite('Extension Test Suite', () => {
             });
             describe("Without matching keywords and missing frontmatter keys", () => {
                 const file = `---
-                Keywords:
-                - Banane
-                - Apple
-                - Orange
-                ---
-                # This and That`;
+Keywords:
+- Banane
+- Apple
+- Orange
+---
+# This and That`;
                 const analyzer = new FrontmatterAnalyzer(file);
                 const results = analyzer.analyze(["Banana", "Apple", "Orange"]);
 

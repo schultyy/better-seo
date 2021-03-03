@@ -27,8 +27,21 @@ export class FileAnalyzer {
 
     public analyze(keyword: string) : Array<AnalyzerResult> {
         let results: Array<AnalyzerResult> = [];
-        results = results.concat(this.validateHeader(keyword), this.validateFirstParagraph(keyword));
+        results = results.concat(
+            this.validateHeader(keyword),
+            this.validateFirstParagraph(keyword),
+            this.validateHeaderStructure()
+        );
         return results;
+    }
+
+    private validateHeaderStructure() : Array<AnalyzerResult> {
+        if(this.children.filter(child => child.type === 'Header' && child.depth === 1).length > 1) {
+            return [
+                new AnalyzerResult('Header', 'Inconsistent Header Structure. Only one first level Header allowed.', ResultType.body)
+            ];
+        }
+        return [];
     }
 
     private validateFirstParagraph(keyword: string) : Array<AnalyzerResult> {
