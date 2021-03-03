@@ -31,13 +31,12 @@ export class FileAnalyzer {
         this.children = AST.children;
     }
 
-    public analyze(keyword: string) : Array<AnalyzerResult> {
+    public analyze(keywords: string[]) : Array<AnalyzerResult> {
         let results: Array<AnalyzerResult> = [];
-        results = results.concat(
-            this.validateHeader(keyword),
-            this.validateFirstParagraph(keyword),
-            this.validateHeaderStructure()
-        );
+
+        results = results.concat(this.validateHeaderStructure());
+        results = results.concat(keywords.flatMap(keyword => this.validateHeader(keyword)));
+        results = results.concat(keywords.flatMap(keyword => this.validateFirstParagraph(keyword)));
         return results;
     }
 

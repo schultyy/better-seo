@@ -58,10 +58,7 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
         }
 
         const frontmatterResults = frontmatterAnalyzer.analyze(keywordsFromFile);
-
-        const contentResults = keywordsFromFile.flatMap(keyword => {
-            return fileAnalyzer.analyze(keyword);
-        });
+        const contentResults = fileAnalyzer.analyze(keywordsFromFile);
 
         this.results = frontmatterResults.concat(contentResults);
     }

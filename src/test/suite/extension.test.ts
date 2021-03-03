@@ -53,7 +53,7 @@ This, that something, else. Dolor Sit Amet.`;
         describe('FileAnalyzer', () => {
             describe('With matching Keyword', () => {
                 const analyzer = new FileAnalyzer(markdown);
-                const results = analyzer.analyze("SEO");
+                const results = analyzer.analyze(["SEO"]);
 
                 test('returns zero findings', () => {
                     assert.strictEqual(results.length, 0);
@@ -62,7 +62,7 @@ This, that something, else. Dolor Sit Amet.`;
 
             describe('Without matching Keyword', () => {
                 const analyzer = new FileAnalyzer(markdown);
-                const results = analyzer.analyze("Banana");
+                const results = analyzer.analyze(["Banana"]);
 
                 test('returns two findings', () => {
                     assert.strictEqual(results.length, 2);
@@ -110,16 +110,23 @@ Lorem Ipsum
 `;
                 test('does return an error with incorrect headers', () => {
                     const analyzer = new FileAnalyzer(withIncorrectHeaders);
-                    const results = analyzer.analyze("SEO");
+                    const results = analyzer.analyze(["SEO"]);
                     const headerError = results.find(result => result.title === 'Header');
                     assert.ok(headerError);
                 });
 
                 test('does not return an error when header structure is correct', () => {
                     const analyzer = new FileAnalyzer(withCorrectHeaders);
-                    const results = analyzer.analyze("SEO");
+                    const results = analyzer.analyze(["SEO"]);
                     const headerError = results.find(result => result.title === 'Header');
                     assert.ok(headerError === null || headerError === undefined);
+                });
+
+                test('Only returns one Header error even for multiple keywords', () => {
+                    const analyzer = new FileAnalyzer(withIncorrectHeaders);
+                    const results = analyzer.analyze(["SEO", "Apple", "Banana"]);
+                    const headerError = results.filter(result => result.title === 'Header');
+                    assert.strictEqual(headerError.length, 1);
                 });
             });
         });
