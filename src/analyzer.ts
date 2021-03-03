@@ -101,25 +101,25 @@ export class FrontmatterAnalyzer {
 
         const results = [];
         if (!seoDescription) {
-            results.push(new AnalyzerError('seo_description', 'not found', ResultType.frontmatter));
+            results.push(new AnalyzerError(this.descriptionAttribute, 'not found', ResultType.frontmatter));
         }
         if (!seoTitle) {
-            results.push(new AnalyzerError('seo_title', 'not found', ResultType.frontmatter));
+            results.push(new AnalyzerError(this.titleAttribute, 'not found', ResultType.frontmatter));
         }
 
         return keywords.flatMap(keyword => {
             const results = [];
             if (seoTitle && seoTitle.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-                results.push(new AnalyzerError('seo_title', `Keyword '${keyword}' not found`, ResultType.frontmatter));
+                results.push(new AnalyzerError(this.titleAttribute, `Keyword '${keyword}' not found`, ResultType.frontmatter));
             }
             if (seoTitle && seoTitle.length > 60) {
-                results.push(new AnalyzerError('seo_title', 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
+                results.push(new AnalyzerError(this.titleAttribute, 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
             }
             if (seoDescription && seoDescription.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-                results.push(new AnalyzerError('seo_description', `Keyword '${keyword}' not found`, ResultType.frontmatter));
+                results.push(new AnalyzerError(this.descriptionAttribute, `Keyword '${keyword}' not found`, ResultType.frontmatter));
             }
             if (seoDescription && seoDescription.length > 160) {
-                results.push(new AnalyzerError('seo_description', 'SEO Description should 160 characters max.', ResultType.frontmatter));
+                results.push(new AnalyzerError(this.descriptionAttribute, 'SEO Description should 160 characters max.', ResultType.frontmatter));
             }
             return results;
         })
