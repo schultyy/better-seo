@@ -1,4 +1,4 @@
-import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window } from "vscode";
+import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace } from "vscode";
 import { AnalyzerResult, FileAnalyzer, FrontmatterAnalyzer, ResultType } from "./analyzer";
 import extractKeywords from "./keywords";
 import * as path from 'path';
@@ -37,6 +37,19 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
         return Promise.resolve([]);
     }
 
+
+    private static get titleAttribute() : string {
+        const configuration = workspace.getConfiguration('betterseo');
+        const title :string = <string> configuration.get('frontmatter.titleAttribute')!;
+        return title;
+    }
+
+    private static get descriptionAttribute() : string {
+        const configuration = workspace.getConfiguration('betterseo');
+        const description :string = <string> configuration.get('frontmatter.descriptionAttribute')!;
+        return description;
+    }
+
     private analyze() {
         if(!window.activeTextEditor?.document.fileName.endsWith("md")) {
             window.showErrorMessage("Better SEO: Current file is not a Markdown file");
@@ -47,7 +60,11 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
         if(!currentFile) {
             return;
         }
-        const frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString());
+        const frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString(), {
+            titleField: TreeProvider.titleAttribute,
+            descriptionField: TreeProvider.descriptionAttribute
+        });
+
         const fileAnalyzer = new FileAnalyzer(currentFile.toString());
         const keywordsFromFile = extractKeywords(currentFile);
 

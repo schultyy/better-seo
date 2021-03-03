@@ -78,48 +78,40 @@ export class FileAnalyzer {
     }
 }
 
+export interface FrontmatterConfiguration {
+    titleField: string;
+    descriptionField: string;
+}
+
 export class FrontmatterAnalyzer {
-
-    public get titleAttribute() : string {
-        const configuration = workspace.getConfiguration('betterseo');
-        const title :string = <string> configuration.get('frontmatter.titleAttribute')!;
-        return title;
-    }
-
-    public get descriptionAttribute() : string {
-        const configuration = workspace.getConfiguration('betterseo');
-        const description :string = <string> configuration.get('frontmatter.descriptionAttribute')!;
-        return description;
-    }
-
-    constructor(public markdownFile: string){}
+    constructor(public markdownFile: string, private configuration: FrontmatterConfiguration){}
 
     public analyze(keywords: string[]) : Array<AnalyzerResult> {
         const frontmatter = matter(this.markdownFile);
-        const seoTitle = frontmatter.data[this.titleAttribute];
-        const seoDescription = frontmatter.data[this.descriptionAttribute];
+        const seoTitle = frontmatter.data[this.configuration.titleField];
+        const seoDescription = frontmatter.data[this.configuration.descriptionField];
 
         const results = [];
         if (!seoDescription) {
-            results.push(new AnalyzerError(this.descriptionAttribute, 'not found', ResultType.frontmatter));
+            results.push(new AnalyzerError(this.configuration.descriptionField, 'not found', ResultType.frontmatter));
         }
         if (!seoTitle) {
-            results.push(new AnalyzerError(this.titleAttribute, 'not found', ResultType.frontmatter));
+            results.push(new AnalyzerError(this.configuration.titleField, 'not found', ResultType.frontmatter));
         }
 
         return keywords.flatMap(keyword => {
             const results = [];
             if (seoTitle && seoTitle.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-                results.push(new AnalyzerError(this.titleAttribute, `Keyword '${keyword}' not found`, ResultType.frontmatter));
+                results.push(new AnalyzerError(this.configuration.titleField, `Keyword '${keyword}' not found`, ResultType.frontmatter));
             }
             if (seoTitle && seoTitle.length > 60) {
-                results.push(new AnalyzerError(this.titleAttribute, 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
+                results.push(new AnalyzerError(this.configuration.titleField, 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
             }
             if (seoDescription && seoDescription.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-                results.push(new AnalyzerError(this.descriptionAttribute, `Keyword '${keyword}' not found`, ResultType.frontmatter));
+                results.push(new AnalyzerError(this.configuration.descriptionField, `Keyword '${keyword}' not found`, ResultType.frontmatter));
             }
             if (seoDescription && seoDescription.length > 160) {
-                results.push(new AnalyzerError(this.descriptionAttribute, 'SEO Description should 160 characters max.', ResultType.frontmatter));
+                results.push(new AnalyzerError(this.configuration.descriptionField, 'SEO Description should 160 characters max.', ResultType.frontmatter));
             }
             return results;
         })
