@@ -1,5 +1,6 @@
 import matter = require('gray-matter');
 import markdownToAst = require("@textlint/markdown-to-ast");
+import { workspace } from 'vscode';
 
 export enum ResultType {
     frontmatter,
@@ -78,33 +79,46 @@ export class FileAnalyzer {
 }
 
 export class FrontmatterAnalyzer {
+
+    public get titleAttribute() : string {
+        const configuration = workspace.getConfiguration('betterseo');
+        const title :string = <string> configuration.get('frontmatter.titleAttribute')!;
+        return title;
+    }
+
+    public get descriptionAttribute() : string {
+        const configuration = workspace.getConfiguration('betterseo');
+        const description :string = <string> configuration.get('frontmatter.descriptionAttribute')!;
+        return description;
+    }
+
     constructor(public markdownFile: string){}
 
     public analyze(keywords: string[]) : Array<AnalyzerResult> {
         const frontmatter = matter(this.markdownFile);
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        const { seo_title, seo_description } = frontmatter.data;
+        const seoTitle = frontmatter.data[this.titleAttribute];
+        const seoDescription = frontmatter.data[this.descriptionAttribute];
 
         const results = [];
-        if (!seo_description) {
+        if (!seoDescription) {
             results.push(new AnalyzerError('seo_description', 'not found', ResultType.frontmatter));
         }
-        if (!seo_title) {
+        if (!seoTitle) {
             results.push(new AnalyzerError('seo_title', 'not found', ResultType.frontmatter));
         }
 
         return keywords.flatMap(keyword => {
             const results = [];
-            if (seo_title && seo_title.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+            if (seoTitle && seoTitle.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
                 results.push(new AnalyzerError('seo_title', `Keyword '${keyword}' not found`, ResultType.frontmatter));
             }
-            if (seo_title && seo_title.length > 60) {
+            if (seoTitle && seoTitle.length > 60) {
                 results.push(new AnalyzerError('seo_title', 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
             }
-            if (seo_description && seo_description.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+            if (seoDescription && seoDescription.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
                 results.push(new AnalyzerError('seo_description', `Keyword '${keyword}' not found`, ResultType.frontmatter));
             }
-            if (seo_description && seo_description.length > 160) {
+            if (seoDescription && seoDescription.length > 160) {
                 results.push(new AnalyzerError('seo_description', 'SEO Description should 160 characters max.', ResultType.frontmatter));
             }
             return results;
