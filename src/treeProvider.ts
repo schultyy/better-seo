@@ -63,7 +63,6 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
 		});
 
 		this.results = frontmatterResults.concat(contentResults);
-        console.log("assigning new results", this.results);
     }
 }
 
