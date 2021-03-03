@@ -5,7 +5,6 @@ import { describe } from 'mocha';
 import * as vscode from 'vscode';
 import { FileAnalyzer, FrontmatterAnalyzer } from '../../analyzer';
 import extractKeywords from '../../keywords';
-// import * as myExtension from '../../extension';
 
 suite('Extension Test Suite', () => {
 	const markdown = `---
@@ -81,9 +80,9 @@ This, that something, else. Dolor Sit Amet.`;
 			});
 		});
 		describe('FrontmatterAnalyzer', () => {
-			describe('With matching Keyword', () => {
+			describe('With matching single Keyword', () => {
 				const analyzer = new FrontmatterAnalyzer(markdown);
-				const results = analyzer.analyze("SEO");
+				const results = analyzer.analyze(["SEO"]);
 
 				test('returns zero findings', () => {
 					assert.strictEqual(results.length, 0);
@@ -91,7 +90,7 @@ This, that something, else. Dolor Sit Amet.`;
 			});
 			describe("Without matching keyword", () => {
 				const analyzer = new FrontmatterAnalyzer(markdown);
-				const results = analyzer.analyze("Banana");
+				const results = analyzer.analyze(["Banana"]);
 
 				test("returns 2 findings", () => {
 					assert.strictEqual(results.length, 2);
@@ -105,6 +104,21 @@ This, that something, else. Dolor Sit Amet.`;
 				test("complains about missing keyword in seo_description", () => {
 					const result = results.find(result => result.title === 'seo_description');
 					assert.strictEqual(result?.title, 'seo_description');
+				});
+			});
+			describe("Without matching keywords and missing frontmatter keys", () => {
+				const file = `---
+Keywords:
+- Banane
+- Apple
+- Orange
+---
+# This and That`;
+				const analyzer = new FrontmatterAnalyzer(file);
+				const results = analyzer.analyze(["Banana", "Apple", "Orange"]);
+
+				test('returns two findings', () => {
+					assert.strictEqual(results.length, 2);
 				});
 			});
 		});

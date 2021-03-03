@@ -62,30 +62,35 @@ export class FileAnalyzer {
 export class FrontmatterAnalyzer {
     constructor(public markdownFile: string){}
 
-    public analyze(keyword: string) : Array<AnalyzerResult> {
+    public analyze(keywords: string[]) : Array<AnalyzerResult> {
         const frontmatter = matter(this.markdownFile);
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const { seo_title, seo_description } = frontmatter.data;
+
         const results = [];
-        if (!seo_title) {
-            results.push(new AnalyzerResult('seo_title', 'not found', ResultType.frontmatter));
-        }
-        if (seo_title && seo_title.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-            results.push(new AnalyzerResult('seo_title', `Keyword '${keyword}' not found`, ResultType.frontmatter));
-        }
-        if (seo_title && seo_title.length > 60) {
-            results.push(new AnalyzerResult('seo_title', 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
-        }
         if (!seo_description) {
             results.push(new AnalyzerResult('seo_description', 'not found', ResultType.frontmatter));
         }
-        if (seo_description && seo_description.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-            results.push(new AnalyzerResult('seo_description', `Keyword '${keyword}' not found`, ResultType.frontmatter));
-        }
-        if (seo_description && seo_description.length > 160) {
-            results.push(new AnalyzerResult('seo_description', 'SEO Description should 160 characters max.', ResultType.frontmatter));
+        if (!seo_title) {
+            results.push(new AnalyzerResult('seo_title', 'not found', ResultType.frontmatter));
         }
 
-        return results;
+        return keywords.flatMap(keyword => {
+            const results = [];
+            if (seo_title && seo_title.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+                results.push(new AnalyzerResult('seo_title', `Keyword '${keyword}' not found`, ResultType.frontmatter));
+            }
+            if (seo_title && seo_title.length > 60) {
+                results.push(new AnalyzerResult('seo_title', 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
+            }
+            if (seo_description && seo_description.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+                results.push(new AnalyzerResult('seo_description', `Keyword '${keyword}' not found`, ResultType.frontmatter));
+            }
+            if (seo_description && seo_description.length > 160) {
+                results.push(new AnalyzerResult('seo_description', 'SEO Description should 160 characters max.', ResultType.frontmatter));
+            }
+            return results;
+        })
+        .concat(results);
     }
 }
