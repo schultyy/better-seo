@@ -37,6 +37,21 @@
                 }
             }
         ],
+        "configuration": {
+            "title": "BetterSEO",
+            "properties": {
+              "betterseo.frontmatter.titleAttribute": {
+                "type": "string",
+                "default": "seo_title",
+                "description": "Specifies the title attribute to look for in the blog post frontmatter"
+              },
+              "betterseo.frontmatter.descriptionAttribute": {
+                "type": "string",
+                "default": "seo_description",
+                "description": "Specifies the description attribute to look for in the blog post frontmatter"
+              }
+            }
+        },
         "menus": {
             "view/title": [
                 {
