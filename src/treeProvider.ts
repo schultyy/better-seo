@@ -52,6 +52,7 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
 
 		if(keywordsFromFile.length === 0) {
 			window.showErrorMessage("Better SEO: No keywords found");
+            this.results = [];
 			return;
 		}
 
