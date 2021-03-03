@@ -1,6 +1,7 @@
 import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window } from "vscode";
 import { AnalyzerResult, FileAnalyzer, FrontmatterAnalyzer, ResultType } from "./analyzer";
 import extractKeywords from "./keywords";
+import * as path from 'path';
 
 export default class TreeProvider implements TreeDataProvider<Finding> {
     private _onDidChangeTreeData: EventEmitter<Finding | undefined | null | void> = new EventEmitter<Finding | undefined | null | void>();
@@ -38,31 +39,31 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
 
     private analyze() {
         if(!window.activeTextEditor?.document.fileName.endsWith("md")) {
-			window.showErrorMessage("Better SEO: Current file is not a Markdown file");
-			return;
-		}
+            window.showErrorMessage("Better SEO: Current file is not a Markdown file");
+            return;
+        }
 
-		const currentFile = window.activeTextEditor?.document.getText();
-		if(!currentFile) {
-			return;
-		}
-		const frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString());
-		const fileAnalyzer = new FileAnalyzer(currentFile.toString());
-		const keywordsFromFile = extractKeywords(currentFile);
+        const currentFile = window.activeTextEditor?.document.getText();
+        if(!currentFile) {
+            return;
+        }
+        const frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString());
+        const fileAnalyzer = new FileAnalyzer(currentFile.toString());
+        const keywordsFromFile = extractKeywords(currentFile);
 
-		if(keywordsFromFile.length === 0) {
-			window.showErrorMessage("Better SEO: No keywords found");
+        if(keywordsFromFile.length === 0) {
+            window.showErrorMessage("Better SEO: No keywords found");
             this.results = [];
-			return;
-		}
+            return;
+        }
 
-		const frontmatterResults = frontmatterAnalyzer.analyze(keywordsFromFile);
+        const frontmatterResults = frontmatterAnalyzer.analyze(keywordsFromFile);
 
-		const contentResults = keywordsFromFile.flatMap(keyword => {
-			return fileAnalyzer.analyze(keyword);
-		});
+        const contentResults = keywordsFromFile.flatMap(keyword => {
+            return fileAnalyzer.analyze(keyword);
+        });
 
-		this.results = frontmatterResults.concat(contentResults);
+        this.results = frontmatterResults.concat(contentResults);
     }
 }
 
@@ -72,10 +73,13 @@ export class Finding extends TreeItem {
         public readonly description: string,
         public provider: TreeProvider,
         public readonly collapsibleState: TreeItemCollapsibleState
-	) {
-		super(label, collapsibleState);
-        this.description = description;
+        ) {
+            super(label, collapsibleState);
+            this.description = description;
+        }
+        iconPath = {
+            light: path.join(__filename, '..', '..', 'resources', 'light', 'error icon.svg'),
+            dark: path.join(__filename, '..', '..', 'resources', 'dark', 'error icon.svg')
+        };
+
     }
-
-
-}
