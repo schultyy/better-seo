@@ -7,6 +7,11 @@ import { FileAnalyzer, FrontmatterAnalyzer } from '../../analyzer';
 import extractKeywords from '../../keywords';
 
 suite('Extension Test Suite', () => {
+    const frontmatterConfiguration = {
+        titleField: 'seo_title',
+        descriptionField: 'seo_description'
+    };
+
     const markdown = `---
 Keywords:
 - Foo
@@ -132,7 +137,7 @@ Lorem Ipsum
         });
         describe('FrontmatterAnalyzer', () => {
             describe('With matching single Keyword', () => {
-                const analyzer = new FrontmatterAnalyzer(markdown);
+                const analyzer = new FrontmatterAnalyzer(markdown, frontmatterConfiguration);
                 const results = analyzer.analyze(["SEO"]);
 
                 test('returns zero findings', () => {
@@ -140,7 +145,7 @@ Lorem Ipsum
                 });
             });
             describe("Without matching keyword", () => {
-                const analyzer = new FrontmatterAnalyzer(markdown);
+                const analyzer = new FrontmatterAnalyzer(markdown, frontmatterConfiguration);
                 const results = analyzer.analyze(["Banana"]);
 
                 test("returns 2 findings", () => {
@@ -148,13 +153,13 @@ Lorem Ipsum
                 });
 
                 test("complains about missing keyword in seo_title", () => {
-                    const result = results.find(result => result.title === 'seo_title');
-                    assert.strictEqual(result?.title, 'seo_title');
+                    const result = results.find(result => result.title === frontmatterConfiguration.titleField);
+                    assert.strictEqual(result?.title, frontmatterConfiguration.titleField);
                 });
 
                 test("complains about missing keyword in seo_description", () => {
-                    const result = results.find(result => result.title === 'seo_description');
-                    assert.strictEqual(result?.title, 'seo_description');
+                    const result = results.find(result => result.title === frontmatterConfiguration.descriptionField);
+                    assert.strictEqual(result?.title, frontmatterConfiguration.descriptionField);
                 });
             });
             describe("Without matching keywords and missing frontmatter keys", () => {
@@ -165,7 +170,7 @@ Keywords:
 - Orange
 ---
 # This and That`;
-                const analyzer = new FrontmatterAnalyzer(file);
+                const analyzer = new FrontmatterAnalyzer(file, frontmatterConfiguration);
                 const results = analyzer.analyze(["Banana", "Apple", "Orange"]);
 
                 test('returns two findings', () => {

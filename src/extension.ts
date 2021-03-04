@@ -1,8 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { FileAnalyzer, FrontmatterAnalyzer } from './analyzer';
-import extractKeywords from './keywords';
 import TreeProvider from './treeProvider';
 
 // this method is called when your extension is activated
