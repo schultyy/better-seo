@@ -44,14 +44,25 @@ If you have the `keywords` key in your Markdown file, Better SEO will use the ke
 - Does the keyword occur in `seo_description`?
 - The text length of `seo_title`
 - The text length of `seo_description`
+- Headline structure
+
+### Configuration
+
+By default, Better SEO looks for `seo_title` and `seo_description` within the blogpost's front-matter. If you use different field names in your front-matter, you can configure those via VSCode's settings. Use the following command:
+
+
+- On Windows/Linux - __File > Preferences > Settings__
+- On macOS - __Code > Preferences > Settings__
+
+Then, search for `BetterSEO`:
+
+![Better SEO Settings Screenshot](resources/settings_screenshot.png)
+
+Now, you can configure different values for both `seo_title` and `seo_description`.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of Better SEO
+Check out [GitHub Releases](https://github.com/schultyy/better-seo/releases).
 
 ## License
 
