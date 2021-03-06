@@ -3,9 +3,9 @@ import { AnalyzerResult, FileAnalyzer, FrontmatterAnalyzer, ResultType } from ".
 import extractKeywords from "./keywords";
 import * as path from 'path';
 
-export default class TreeProvider implements TreeDataProvider<Finding> {
-    private _onDidChangeTreeData: EventEmitter<Finding | undefined | null | void> = new EventEmitter<Finding | undefined | null | void>();
-    readonly onDidChangeTreeData: Event<Finding | undefined | null | void> = this._onDidChangeTreeData.event;
+export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
+    private _onDidChangeTreeData: EventEmitter<ResultsTreeItem | undefined | null | void> = new EventEmitter<ResultsTreeItem | undefined | null | void>();
+    readonly onDidChangeTreeData: Event<ResultsTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
     public results: AnalyzerResult[];
 
@@ -21,10 +21,10 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
     getTreeItem(element: Finding): TreeItem {
         return element;
     }
-    getChildren(element?: Finding): ProviderResult<Finding[]> {
+    getChildren(element?: Finding): ProviderResult<ResultsTreeItem[]> {
         if(!element) {
-            const frontmatter = new Finding('Frontmatter', "Frontmatter", this, TreeItemCollapsibleState.Expanded);
-            const body = new Finding('Body', "Body", this, TreeItemCollapsibleState.Expanded);
+            const frontmatter = new HeaderItem('Frontmatter', this, TreeItemCollapsibleState.Expanded);
+            const body = new HeaderItem('Body', this, TreeItemCollapsibleState.Expanded);
             return Promise.resolve([frontmatter, body]);
         }
         else if(element.label === 'Frontmatter') {
@@ -86,14 +86,31 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
     }
 }
 
-export class Finding extends TreeItem {
+export abstract class ResultsTreeItem extends TreeItem {
+    constructor(
+        public readonly label: string,
+        public provider: TreeProvider,
+        public readonly collapsibleState: TreeItemCollapsibleState
+        ) {
+            super(label, collapsibleState);
+        }
+}
+
+export class HeaderItem extends ResultsTreeItem {
+        iconPath = {
+            light: path.join(__filename, '..', '..', 'resources', 'betterseo-view-icon-light.svg'),
+            dark: path.join(__filename, '..', '..', 'resources',  'betterseo-view-icon-light.svg')
+        };
+}
+
+export class Finding extends ResultsTreeItem {
     constructor(
         public readonly label: string,
         public readonly description: string,
         public provider: TreeProvider,
         public readonly collapsibleState: TreeItemCollapsibleState
         ) {
-            super(label, collapsibleState);
+            super(label, provider, collapsibleState);
             this.description = description;
         }
         iconPath = {
