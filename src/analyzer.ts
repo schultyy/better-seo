@@ -25,6 +25,24 @@ interface AstChild {
     children?: Array<AstChild>;
 }
 
+export function extractKeywords(currentFile: string) :Array<string> {
+    const frontmatter = matter(currentFile);
+    const keywords = frontmatter.data['keywords'] || frontmatter.data['Keywords'];
+    if(!keywords) {
+        return [];
+    }
+    return keywords;
+}
+
+export function runAnalysis(markdownFile: string, configuration: FrontmatterConfiguration) : Array<AnalyzerResult> {
+    const fileAnalyzer = new FileAnalyzer(markdownFile);
+    const frontmatterAnalyzer = new FrontmatterAnalyzer(markdownFile, configuration);
+    const keywords = extractKeywords(markdownFile);
+    const fileResults = fileAnalyzer.analyze(keywords);
+    const frontmatterResults = frontmatterAnalyzer.analyze(keywords);
+    return frontmatterResults.concat(fileResults);
+}
+
 export class FileAnalyzer {
     private readonly children: Array<AstChild>;
     constructor(public markdownFile: string){

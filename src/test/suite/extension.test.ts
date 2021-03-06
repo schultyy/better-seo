@@ -3,8 +3,7 @@ import { describe } from 'mocha';
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from 'vscode';
-import { FileAnalyzer, FrontmatterAnalyzer } from '../../analyzer';
-import extractKeywords from '../../keywords';
+import { extractKeywords, FileAnalyzer, FrontmatterAnalyzer } from '../../analyzer';
 
 suite('Extension Test Suite', () => {
     const frontmatterConfiguration = {
