@@ -1,4 +1,4 @@
-# Better SEO [![.github/workflows/ci.yaml](https://github.com/schultyy/better-seo/actions/workflows/ci.yaml/badge.svg)](https://github.com/schultyy/better-seo/actions/workflows/ci.yaml)
+# Better SEO
 
 ![Better SEO Logo](https://github.com/schultyy/better-seo/blob/8e67368054112dab8db5c926a44e6f0f6e8b954a/resources/better_seo.png)
 
