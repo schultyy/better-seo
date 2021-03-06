@@ -25,16 +25,21 @@ export default class TreeProvider implements TreeDataProvider<Finding> {
         if(!element) {
             const frontmatter = new Finding('Frontmatter', "Frontmatter", this, TreeItemCollapsibleState.Expanded);
             const body = new Finding('Body', "Body", this, TreeItemCollapsibleState.Expanded);
-            let frontmatterNodes: Finding[] = this.results.filter(r => r.resultType === ResultType.frontmatter).map(result => {
-                return new Finding(result.title, result.message, this, TreeItemCollapsibleState.None);
-            });
-            let bodyNodes: Finding[] = this.results.filter(r => r.resultType === ResultType.body).map(result => {
-                return new Finding(result.title, result.message, this, TreeItemCollapsibleState.None);
-            });
-
-            return Promise.resolve([frontmatter].concat(frontmatterNodes).concat([body]).concat(bodyNodes));
+            return Promise.resolve([frontmatter, body]);
         }
-        return Promise.resolve([]);
+        else if(element.label === 'Frontmatter') {
+            return Promise.resolve(this.results.filter(r => r.resultType === ResultType.frontmatter).map(result => {
+                return new Finding(result.title, result.message, this, TreeItemCollapsibleState.None);
+            }));
+        }
+        else if(element.label === 'Body') {
+            return Promise.resolve(this.results.filter(r => r.resultType === ResultType.body).map(result => {
+                return new Finding(result.title, result.message, this, TreeItemCollapsibleState.None);
+            }));
+        }
+        else {
+            return Promise.resolve([]);
+        }
     }
 
 
