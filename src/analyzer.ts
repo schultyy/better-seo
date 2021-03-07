@@ -34,6 +34,18 @@ export function extractKeywords(currentFile: string) :Array<string> {
     return keywords;
 }
 
+function doesKeywordPartialMatch(keyword: string, fieldValue: string) : boolean {
+    const splittedKeyword = keyword.split(' ');
+    const foundWordResults = [];
+
+    for(let i = 0; i < splittedKeyword.length; i++) {
+        const currentKeywordPartial = splittedKeyword[i].toLowerCase();
+        foundWordResults.push(fieldValue.toLowerCase().indexOf(currentKeywordPartial) !== -1);
+    }
+
+    return foundWordResults.every(value => value === true);
+}
+
 export function runAnalysis(markdownFile: string, configuration: FrontmatterConfiguration) : Array<AnalyzerResult> {
     const fileAnalyzer = new FileAnalyzer(markdownFile);
     const frontmatterAnalyzer = new FrontmatterAnalyzer(markdownFile, configuration);
@@ -90,7 +102,7 @@ export class FileAnalyzer {
             analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
         }
         if(header && header.raw.indexOf(keywords[0]) === -1) {
-            if(!this.doesKeywordPartialMatchTitle(keywords[0], header)) {
+            if(!doesKeywordPartialMatch(keywords[0], header.raw)) {
                 analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keywords[0]} not found`, ResultType.body));
             }
         }
@@ -103,18 +115,6 @@ export class FileAnalyzer {
         }
 
         return analyzerResults;
-    }
-
-    doesKeywordPartialMatchTitle(keyword: string, header: AstChild) : boolean {
-        const splittedKeyword = keyword.split(' ');
-        const foundWordResults = [];
-
-        for(let i = 0; i < splittedKeyword.length; i++) {
-            const currentKeywordPartial = splittedKeyword[i].toLowerCase();
-            foundWordResults.push(header.raw.toLowerCase().indexOf(currentKeywordPartial) !== -1);
-        }
-
-        return foundWordResults.every(value => value === true);
     }
 
     private analyzeTitleForRemainingKeywords(keywords: string[], header: AstChild) : AnalyzerResult | null {
@@ -159,11 +159,13 @@ export class FrontmatterAnalyzer {
         if (!seoTitle) {
             results.push(new AnalyzerError(this.configuration.titleField, 'Field not found', ResultType.frontmatter));
         }else {
-            if(keywords.length === 1) {
-                results = results.concat(this.validateSeoTitle(seoTitle, keywords[0]));
+            if(keywords.length >= 1) {
+                const titleError = this.validateSeoTitle(seoTitle, keywords[0]);
+                if(titleError && !doesKeywordPartialMatch(keywords[0], seoTitle)) {
+                    results = results.concat(titleError);
+                }
             }
-            else if(keywords.length >= 2) {
-                results = results.concat(this.validateSeoTitle(seoTitle, keywords[0]));
+            if(keywords.length >= 2) {
                 results = results.concat(this.validateSeoTitle(seoTitle, keywords[1]));
             }
             if(keywords.length >= 3) {

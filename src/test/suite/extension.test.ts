@@ -216,10 +216,16 @@ suite('Extension Test Suite', () => {
                 assert.ok(error);
             });
 
-            test("performs partial match on headline", () => {
+            test("performs partial match on article headline", () => {
                 const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
                 const error = results.find(result => result.title === 'Article Title');
                 assert.ok(error === undefined);
+            });
+
+            test("performs partial match on seo_title", () => {
+                const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
+                const error = results.find(result => result.title === frontmatterConfiguration.titleField);
+                assert.strictEqual(error?.message.indexOf('How to Sell Consulting Services'), -1);
             });
         });
 
