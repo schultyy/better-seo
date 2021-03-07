@@ -1,6 +1,5 @@
 import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace } from "vscode";
-import { AnalyzerResult, FileAnalyzer, FrontmatterAnalyzer, ResultType } from "./analyzer";
-import extractKeywords from "./keywords";
+import { AnalyzerResult, FileAnalyzer, FrontmatterAnalyzer, ResultType, runAnalysis } from "./analyzer";
 import * as path from 'path';
 
 export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
@@ -65,24 +64,14 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
         if(!currentFile) {
             return;
         }
-        const frontmatterAnalyzer = new FrontmatterAnalyzer(currentFile.toString(), {
+
+        const markdownFile = currentFile.toString();
+        const frontmatterConfig = {
             titleField: TreeProvider.titleAttribute,
             descriptionField: TreeProvider.descriptionAttribute
-        });
+        };
 
-        const fileAnalyzer = new FileAnalyzer(currentFile.toString());
-        const keywordsFromFile = extractKeywords(currentFile);
-
-        if(keywordsFromFile.length === 0) {
-            window.showErrorMessage("Better SEO: No keywords found");
-            this.results = [];
-            return;
-        }
-
-        const frontmatterResults = frontmatterAnalyzer.analyze(keywordsFromFile);
-        const contentResults = fileAnalyzer.analyze(keywordsFromFile);
-
-        this.results = frontmatterResults.concat(contentResults);
+        this.results = runAnalysis(markdownFile, frontmatterConfig);
     }
 }
 

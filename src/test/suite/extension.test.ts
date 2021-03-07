@@ -3,89 +3,90 @@ import { describe } from 'mocha';
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from 'vscode';
-import { FileAnalyzer, FrontmatterAnalyzer } from '../../analyzer';
-import extractKeywords from '../../keywords';
+import * as path from 'path';
+import * as fs from 'fs';
+import { extractKeywords, runAnalysis } from '../../analyzer';
 
-suite('Extension Test Suite', () => {
-    const frontmatterConfiguration = {
-        titleField: 'seo_title',
-        descriptionField: 'seo_description'
-    };
+function loadMarkdown(filename: string) : string {
+    const filePath = path.join(__filename, '..', 'support', filename);
+    return fs.readFileSync(filePath).toString();
+}
 
-    const markdown = `---
+const singleMatchingKeyword = `---
 Keywords:
-- Foo
-- Bar
-seo_title: This is about seo
+- SEO
+seo_title: This is about SEO
 seo_description: Learn how to seo perfectly
 ---
-# How to do SEO`;
+# How to do SEO
 
-    const markdownNoKeywords = `---
+Explain how to SEO in the first paragraph`;
+
+const twoMatchingKeywords = `---
+Keywords:
+- SEO
+- Business
+seo_title: This is about seo in your business
+seo_description: Learn how to seo perfectly in your business
+---
+# How to do SEO
+
+Lorem Ipsum Dolor Sit Amet in SEO and Business.`;
+
+const threeMatchingKeywords = `---
+Keywords:
+- SEO
+- Business
+- SaaS
+seo_title: This is about seo in your SaaS business
+seo_description: Learn how to seo perfectly in your business
+---
+# How to do SEO in your SaaS business
+
+Lorem Ipsum Dolor Sit Amet in SEO Business and SaaS`;
+
+const threeMatchingKeywordsInSeoDescription = `---
+Keywords:
+- SEO
+- Business
+- banana
+seo_title: This is about seo in your SaaS business
+seo_description: Learn how to seo perfectly in your business. And Banana
+---
+# How to do SEO in your SaaS business
+
+Lorem Ipsum Dolor Sit Amet in SEO Business and SaaS`;
+
+const twoMatchingKeywordsFirstRepeatsInSeoDescription = `---
+Keywords:
+- SEO
+- Business
+seo_title: This is about seo in your SaaS business
+seo_description: Learn how to seo perfectly in your business for better seo.
+---
+# How to do SEO in your SaaS business
+
+Lorem Ipsum Dolor Sit Amet in SEO Business and SaaS`;
+
+
+const noMatchingKeywords = `---
+Keywords:
+- Banana
+seo_title: This is about seo in your business
+seo_description: Learn how to seo perfectly in your business
+---
+# How to do SEO
+
+Lorem Ipsum Dolor Sit Amet`;
+
+
+const noKeywords = `---
 seo_title: This is about seo
 seo_description: Learn how to seo perfectly
 ---
 # Foo`;
 
-    vscode.window.showInformationMessage('Start all tests.');
-    describe('keywords.ts', () => {
-
-        test('extract keywords from frontmatter', () => {
-            const keywords = extractKeywords(markdown);
-            assert.notStrictEqual(['Foo', 'Bar'], keywords);
-        });
-
-        test('returns empty list if no keywords are found', () => {
-            const keywords = extractKeywords(markdownNoKeywords);
-            assert.notStrictEqual([], keywords);
-        });
-    });
-
-    describe('analyzer.ts', () => {
-        const markdown = `---
-Keywords:
-- SEO
-seo_title: This is about seo
-seo_description: Learn how to seo perfectly
----
-# How to do SEO
-
-Lorem Ipsum Dolor Sit Amet with SEO And among Other Things.
-
-
-This, that something, else. Dolor Sit Amet.`;
-
-        describe('FileAnalyzer', () => {
-            describe('With matching Keyword', () => {
-                const analyzer = new FileAnalyzer(markdown);
-                const results = analyzer.analyze(["SEO"]);
-
-                test('returns zero findings', () => {
-                    assert.strictEqual(results.length, 0);
-                });
-            });
-
-            describe('Without matching Keyword', () => {
-                const analyzer = new FileAnalyzer(markdown);
-                const results = analyzer.analyze(["Banana"]);
-
-                test('returns two findings', () => {
-                    assert.strictEqual(results.length, 2);
-                });
-
-                test('complains about missing keyword in title', () => {
-                    const result = results.find(result => result.title === 'Article Title');
-                    assert.strictEqual(result?.title, 'Article Title');
-                });
-
-                test('complains about missing keyword in first paragraph', () => {
-                    const result = results.find(result => result.title === 'First Paragraph');
-                    assert.strictEqual(result?.title, 'First Paragraph');
-                });
-            });
-
-            describe("Analyze Headline Structure", () => {
-                const withCorrectHeaders =
+const withCorrectHeaders =
 `---
 keywords:
 - SEO
@@ -99,7 +100,8 @@ Lorem Ipsum
 ## How To
 Lorem Ipsum
 `;
-                const withIncorrectHeaders =
+
+const withIncorrectHeaders =
 `---
 keywords:
 - SEO
@@ -113,69 +115,181 @@ Lorem Ipsum
 Lorem Ipsum
 ## How To
 `;
-                test('does return an error with incorrect headers', () => {
-                    const analyzer = new FileAnalyzer(withIncorrectHeaders);
-                    const results = analyzer.analyze(["SEO"]);
-                    const headerError = results.find(result => result.title === 'Header');
-                    assert.ok(headerError);
-                });
 
-                test('does not return an error when header structure is correct', () => {
-                    const analyzer = new FileAnalyzer(withCorrectHeaders);
-                    const results = analyzer.analyze(["SEO"]);
-                    const headerError = results.find(result => result.title === 'Header');
-                    assert.ok(headerError === null || headerError === undefined);
-                });
+const withIncorrectHeadersMultipleKeywords =
+`---
+keywords:
+- SEO
+- Other
+- Stuff
+seo_title: How to SEO
+seo_description: How to SEO - A practical Guide
+---
 
-                test('Only returns one Header error even for multiple keywords', () => {
-                    const analyzer = new FileAnalyzer(withIncorrectHeaders);
-                    const results = analyzer.analyze(["SEO", "Apple", "Banana"]);
-                    const headerError = results.filter(result => result.title === 'Header');
-                    assert.strictEqual(headerError.length, 1);
-                });
-            });
-        });
-        describe('FrontmatterAnalyzer', () => {
-            describe('With matching single Keyword', () => {
-                const analyzer = new FrontmatterAnalyzer(markdown, frontmatterConfiguration);
-                const results = analyzer.analyze(["SEO"]);
+# How to SEO - A guide for all
+Lorem Ipsum
+# Introduction
+Lorem Ipsum
+## How To
+`;
 
-                test('returns zero findings', () => {
-                    assert.strictEqual(results.length, 0);
-                });
-            });
-            describe("Without matching keyword", () => {
-                const analyzer = new FrontmatterAnalyzer(markdown, frontmatterConfiguration);
-                const results = analyzer.analyze(["Banana"]);
-
-                test("returns 2 findings", () => {
-                    assert.strictEqual(results.length, 2);
-                });
-
-                test("complains about missing keyword in seo_title", () => {
-                    const result = results.find(result => result.title === frontmatterConfiguration.titleField);
-                    assert.strictEqual(result?.title, frontmatterConfiguration.titleField);
-                });
-
-                test("complains about missing keyword in seo_description", () => {
-                    const result = results.find(result => result.title === frontmatterConfiguration.descriptionField);
-                    assert.strictEqual(result?.title, frontmatterConfiguration.descriptionField);
-                });
-            });
-            describe("Without matching keywords and missing frontmatter keys", () => {
-                const file = `---
+const withMissingFrontmatterkeys = `---
 Keywords:
 - Banane
 - Apple
 - Orange
 ---
 # This and That`;
-                const analyzer = new FrontmatterAnalyzer(file, frontmatterConfiguration);
-                const results = analyzer.analyze(["Banana", "Apple", "Orange"]);
 
-                test('returns two findings', () => {
-                    assert.strictEqual(results.length, 2);
-                });
+const keywordMatchesPartiallyInHeadline = `---
+Keywords:
+- How to Sell Consulting Services
+- Proof of Concept Template
+excerpt: It's challenging to sell software development services. Let's explore how to build trust with clients to grow your business sustainably over the long-term with paid proof of concepts.
+seo_title: Secrets on How to sell Software Consulting Services
+seo_description: It's challenging to sell software development services. Let's explore how to build trust with clients to grow your business sustainably over the long-term.
+---
+
+# Secrets on How to sell Software Consulting services
+
+Companies often don't want external developers on their team. Does this objection sound familiar? You offer software consulting services, on-site or even remote. But new clients don't bite. The question is: How do you sell consulting services? What's the secret? How do you build a full sales pipeline for your software development consulting firm?
+`;
+
+suite('Extension Test Suite', () => {
+    const frontmatterConfiguration = {
+        titleField: 'seo_title',
+        descriptionField: 'seo_description'
+    };
+
+    vscode.window.showInformationMessage('Start all tests.');
+    describe('keywords.ts', () => {
+        test('extract keywords from frontmatter', () => {
+            const keywords = extractKeywords(twoMatchingKeywords);
+            assert.notStrictEqual(['SEO', 'Business'], keywords);
+        });
+
+        test('returns empty list if no keywords are found', () => {
+            const keywords = extractKeywords(noKeywords);
+            assert.notStrictEqual([], keywords);
+        });
+    });
+
+    describe('runAnalysis', () => {
+        test('with matching keyword returns zero findings', () => {
+            const results = runAnalysis(singleMatchingKeyword, frontmatterConfiguration);
+            assert.strictEqual(results.length, 0);
+        });
+
+        describe('with several keywords', () => {
+            test('passes when headline contains one matching keyword', () => {
+                const results = runAnalysis(singleMatchingKeyword, frontmatterConfiguration);
+                assert.ok(results.length === 0);
+            });
+
+            test('passes when seo headline contains two matching keywords', () => {
+                const results = runAnalysis(twoMatchingKeywords, frontmatterConfiguration);
+                const errors = results.filter(result => result.title === frontmatterConfiguration.titleField);
+                assert.strictEqual(errors.length, 0);
+            });
+
+            test('exclaims if more than two keywords appear in seo_title', () => {
+                const results = runAnalysis(threeMatchingKeywords, frontmatterConfiguration);
+                const error = results.find(result => result.title === frontmatterConfiguration.titleField);
+                assert.strictEqual(error?.message, 'SEO Title should only include two keywords maximum');
+            });
+
+            test('only has the main keyword in the article headline', () => {
+                const results = runAnalysis(threeMatchingKeywords, frontmatterConfiguration);
+                const error = results.find(result => result.title === 'Article Title');
+                assert.strictEqual(error?.message, 'Article Title should only include the top keyword');
+            });
+
+            test('exclaims if more than the first two keywords show up in the seo_description', () => {
+                const results = runAnalysis(threeMatchingKeywordsInSeoDescription, frontmatterConfiguration);
+                const error = results.find(result => result.title === frontmatterConfiguration.descriptionField);
+                assert.ok(error);
+            });
+
+            test('exclaims if first keyword appears several times in seo_description', () => {
+                const results = runAnalysis(twoMatchingKeywordsFirstRepeatsInSeoDescription, frontmatterConfiguration);
+                const error = results.find(result => result.title === frontmatterConfiguration.descriptionField);
+                assert.ok(error);
+            });
+
+            test("performs partial match on article headline", () => {
+                const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
+                const error = results.find(result => result.title === 'Article Title');
+                assert.ok(error === undefined);
+            });
+
+            test("performs partial match on seo_title", () => {
+                const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
+                const errors = results.filter(result => result.title === frontmatterConfiguration.titleField);
+                assert.strictEqual(errors.length, 0);
+            });
+
+            test('does not complain about second keyword in seo_title when more than keyword is present', () =>{
+                const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
+                const error = results.find(result => result.title === frontmatterConfiguration.titleField);
+                assert.ok(error === undefined);
+            });
+        });
+
+        describe('without matching keyword', () => {
+            const results = runAnalysis(noMatchingKeywords, frontmatterConfiguration);
+
+            test('complains about missing keyword in seo_title', () => {
+                const seoTitle = results.find(result => result.title === frontmatterConfiguration.titleField);
+                assert.ok(seoTitle);
+            });
+
+            test('complains about missing keyword in seo_description', () => {
+                const seoDescription = results.find(result => result.title === frontmatterConfiguration.descriptionField);
+                assert.ok(seoDescription);
+            });
+
+            test('complains about missing keyword in title', () => {
+                const articleTitle = results.find(result => result.title === 'Article Title');
+                assert.ok(articleTitle);
+            });
+            test('complains about missing keyword in first paragraph', () => {
+                const firstParagraph = results.find(result => result.title === 'First Paragraph');
+                assert.ok(firstParagraph);
+            });
+        });
+
+        describe('Analyses Headline Structure', () => {
+            test('does return an error with incorrect headers', () => {
+                const results = runAnalysis(withIncorrectHeaders, frontmatterConfiguration);
+                const headerError = results.find(result => result.title === 'Header');
+                assert.ok(headerError);
+            });
+
+            test('does not return an error when header structure is correct', () => {
+                const results = runAnalysis(withCorrectHeaders, frontmatterConfiguration);
+                const headerError = results.find(result => result.title === 'Header');
+                assert.ok(headerError === null || headerError === undefined);
+            });
+
+            test('Only returns one Header error even for multiple keywords', () => {
+                const results = runAnalysis(withIncorrectHeadersMultipleKeywords, frontmatterConfiguration);
+                const headerError = results.filter(result => result.title === 'Header');
+                assert.strictEqual(headerError.length, 1);
+            });
+        });
+
+        describe("Without matching keywords and missing frontmatter keys", () => {
+            const results = runAnalysis(withMissingFrontmatterkeys, frontmatterConfiguration);
+
+            test('returns two findings', () => {
+                const missingFieldResults = results.filter(result =>(
+                    (result.title === frontmatterConfiguration.titleField &&
+                    result.message === 'Field not found')
+                    ||
+                    (result.title === frontmatterConfiguration.descriptionField &&
+                    result.message === 'Field not found')
+                ));
+                assert.strictEqual(missingFieldResults.length, 2);
             });
         });
     });
