@@ -119,9 +119,20 @@ export class FrontmatterAnalyzer {
         const seoTitle = frontmatter.data[this.configuration.titleField];
         const seoDescription = frontmatter.data[this.configuration.descriptionField];
 
-        let results = [];
+        let results :AnalyzerResult[] = [];
         if (!seoDescription) {
             results.push(new AnalyzerError(this.configuration.descriptionField, 'Field not found', ResultType.frontmatter));
+        } else {
+            if(keywords.length === 1) {
+                results = results.concat(this.validateSeoDescription(seoDescription, keywords[0]));
+            }
+            else if(keywords.length >= 2) {
+                results = results.concat(this.validateSeoDescription(seoDescription, keywords[0]));
+                results = results.concat(this.validateSeoDescription(seoDescription, keywords[1]));
+            }
+            if(keywords.length >= 3) {
+                results = results.concat(this.validateSeoDescriptionWithAllKeywords(seoDescription, keywords));
+            }
         }
         if (!seoTitle) {
             results.push(new AnalyzerError(this.configuration.titleField, 'Field not found', ResultType.frontmatter));
@@ -138,17 +149,31 @@ export class FrontmatterAnalyzer {
             }
         }
 
-        return keywords.flatMap(keyword => {
-            const results : AnalyzerResult[] = [];
-            if (seoDescription && seoDescription.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-                results.push(new AnalyzerError(this.configuration.descriptionField, `Keyword '${keyword}' not found`, ResultType.frontmatter));
-            }
-            if (seoDescription && seoDescription.length > 160) {
-                results.push(new AnalyzerError(this.configuration.descriptionField, 'SEO Description should 160 characters max.', ResultType.frontmatter));
-            }
-            return results;
-        })
-        .concat(results);
+        return results;
+    }
+
+    private validateSeoDescriptionWithAllKeywords(seoDescription: string, keywords: string[]) : AnalyzerResult[] {
+        const foundKeyWords = keywords.slice(2)
+                                        .filter(keyword => seoDescription.toLowerCase().indexOf(keyword.toLowerCase()) !== -1);
+        if(foundKeyWords.length === keywords.slice(2).length) {
+            return [
+                new AnalyzerError(this.configuration.descriptionField,
+                    'SEO Description should not contain more than the primary and secondary keyword',
+                    ResultType.frontmatter)
+            ];
+        }
+        return [];
+    }
+
+    private validateSeoDescription(seoDescription: string, keyword: string) : AnalyzerResult[] {
+        const results :AnalyzerResult[] = [];
+        if (seoDescription && seoDescription.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+            results.push(new AnalyzerError(this.configuration.descriptionField, `Keyword '${keyword}' not found`, ResultType.frontmatter));
+        }
+        if (seoDescription && seoDescription.length > 160) {
+            results.push(new AnalyzerError(this.configuration.descriptionField, 'SEO Description should 160 characters max.', ResultType.frontmatter));
+        }
+        return results;
     }
 
     private validateSeoTitleWithAllKeywords(seoTitle: string, keywords: string[]) : AnalyzerResult[] {
