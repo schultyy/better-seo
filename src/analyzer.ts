@@ -1,6 +1,5 @@
 import matter = require('gray-matter');
 import markdownToAst = require("@textlint/markdown-to-ast");
-import { workspace } from 'vscode';
 
 export enum ResultType {
     frontmatter,
@@ -164,9 +163,6 @@ export class FrontmatterAnalyzer {
                 if(titleError && !doesKeywordPartialMatch(keywords[0], seoTitle)) {
                     results = results.concat(titleError);
                 }
-            }
-            if(keywords.length >= 2) {
-                results = results.concat(this.validateSeoTitle(seoTitle, keywords[1]));
             }
             if(keywords.length >= 3) {
                 results = results.concat(this.validateSeoTitleWithAllKeywords(seoTitle, keywords));

@@ -224,8 +224,14 @@ suite('Extension Test Suite', () => {
 
             test("performs partial match on seo_title", () => {
                 const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
+                const errors = results.filter(result => result.title === frontmatterConfiguration.titleField);
+                assert.strictEqual(errors.length, 0);
+            });
+
+            test('does not complain about second keyword in seo_title when more than keyword is present', () =>{
+                const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
                 const error = results.find(result => result.title === frontmatterConfiguration.titleField);
-                assert.strictEqual(error?.message.indexOf('How to Sell Consulting Services'), -1);
+                assert.ok(error === undefined);
             });
         });
 
