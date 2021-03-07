@@ -90,7 +90,9 @@ export class FileAnalyzer {
             analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
         }
         if(header && header.raw.indexOf(keywords[0]) === -1) {
-            analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keywords[0]} not found`, ResultType.body));
+            if(!this.doesKeywordPartialMatchTitle(keywords[0], header)) {
+                analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keywords[0]} not found`, ResultType.body));
+            }
         }
 
         if(header) {
@@ -103,8 +105,20 @@ export class FileAnalyzer {
         return analyzerResults;
     }
 
+    doesKeywordPartialMatchTitle(keyword: string, header: AstChild) : boolean {
+        const splittedKeyword = keyword.split(' ');
+        const foundWordResults = [];
+
+        for(let i = 0; i < splittedKeyword.length; i++) {
+            const currentKeywordPartial = splittedKeyword[i].toLowerCase();
+            foundWordResults.push(header.raw.toLowerCase().indexOf(currentKeywordPartial) !== -1);
+        }
+
+        return foundWordResults.every(value => value === true);
+    }
+
     private analyzeTitleForRemainingKeywords(keywords: string[], header: AstChild) : AnalyzerResult | null {
-        const foundKeywords = keywords.slice(1).filter(keyword => header?.raw.indexOf(keyword));
+        const foundKeywords = keywords.slice(1).filter(keyword => header?.raw.indexOf(keyword) !== -1);
         if (foundKeywords.length > 0) {
             return new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body);
         }

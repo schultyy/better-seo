@@ -141,6 +141,20 @@ Keywords:
 ---
 # This and That`;
 
+const keywordMatchesPartiallyInHeadline = `---
+Keywords:
+- How to Sell Consulting Services
+- Proof of Concept Template
+excerpt: It's challenging to sell software development services. Let's explore how to build trust with clients to grow your business sustainably over the long-term with paid proof of concepts.
+seo_title: Secrets on How to sell Software Consulting Services
+seo_description: It's challenging to sell software development services. Let's explore how to build trust with clients to grow your business sustainably over the long-term.
+---
+
+# Secrets on How to sell Software Consulting services
+
+Companies often don't want external developers on their team. Does this objection sound familiar? You offer software consulting services, on-site or even remote. But new clients don't bite. The question is: How do you sell consulting services? What's the secret? How do you build a full sales pipeline for your software development consulting firm?
+`;
+
 suite('Extension Test Suite', () => {
     const frontmatterConfiguration = {
         titleField: 'seo_title',
@@ -200,6 +214,12 @@ suite('Extension Test Suite', () => {
                 const results = runAnalysis(twoMatchingKeywordsFirstRepeatsInSeoDescription, frontmatterConfiguration);
                 const error = results.find(result => result.title === frontmatterConfiguration.descriptionField);
                 assert.ok(error);
+            });
+
+            test("performs partial match on headline", () => {
+                const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
+                const error = results.find(result => result.title === 'Article Title');
+                assert.ok(error === undefined);
             });
         });
 
