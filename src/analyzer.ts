@@ -54,7 +54,7 @@ export class FileAnalyzer {
         let results: Array<AnalyzerResult> = [];
 
         results = results.concat(this.validateHeaderStructure());
-        results = results.concat(keywords.flatMap(keyword => this.validateHeader(keyword)));
+        results = results.concat(this.validateHeader(keywords));
         results = results.concat(keywords.flatMap(keyword => this.validateFirstParagraph(keyword)));
         return results;
     }
@@ -83,15 +83,25 @@ export class FileAnalyzer {
         return analyzerResults;
     }
 
-    private validateHeader(keyword: string) : Array<AnalyzerResult> {
+    private validateHeader(keywords: string[]) : Array<AnalyzerResult> {
         const analyzerResults = [];
         let header = this.children.find(child => child.type === 'Header' && child.depth === 1);
         if(!header) {
             analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
         }
-        if(header && header.raw.indexOf(keyword) === -1) {
-            analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keyword} not found`, ResultType.body));
+        if(header && header.raw.indexOf(keywords[0]) === -1) {
+            analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keywords[0]} not found`, ResultType.body));
         }
+
+        if(header) {
+            const foundKeywords = keywords.slice(1).filter(keyword => header?.raw.indexOf(keyword));
+            if(foundKeywords.length > 0) {
+                analyzerResults.push(
+                    new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body)
+                );
+            }
+        }
+
         return analyzerResults;
     }
 }
@@ -109,22 +119,27 @@ export class FrontmatterAnalyzer {
         const seoTitle = frontmatter.data[this.configuration.titleField];
         const seoDescription = frontmatter.data[this.configuration.descriptionField];
 
-        const results = [];
+        let results = [];
         if (!seoDescription) {
             results.push(new AnalyzerError(this.configuration.descriptionField, 'Field not found', ResultType.frontmatter));
         }
         if (!seoTitle) {
             results.push(new AnalyzerError(this.configuration.titleField, 'Field not found', ResultType.frontmatter));
+        }else {
+            if(keywords.length === 1) {
+                results = results.concat(this.validateSeoTitle(seoTitle, keywords[0]));
+            }
+            else if(keywords.length >= 2) {
+                results = results.concat(this.validateSeoTitle(seoTitle, keywords[0]));
+                results = results.concat(this.validateSeoTitle(seoTitle, keywords[1]));
+            }
+            if(keywords.length >= 3) {
+                results = results.concat(this.validateSeoTitleWithAllKeywords(seoTitle, keywords));
+            }
         }
 
         return keywords.flatMap(keyword => {
-            const results = [];
-            if (seoTitle && seoTitle.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-                results.push(new AnalyzerError(this.configuration.titleField, `Keyword '${keyword}' not found`, ResultType.frontmatter));
-            }
-            if (seoTitle && seoTitle.length > 60) {
-                results.push(new AnalyzerError(this.configuration.titleField, 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
-            }
+            const results : AnalyzerResult[] = [];
             if (seoDescription && seoDescription.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
                 results.push(new AnalyzerError(this.configuration.descriptionField, `Keyword '${keyword}' not found`, ResultType.frontmatter));
             }
@@ -134,5 +149,33 @@ export class FrontmatterAnalyzer {
             return results;
         })
         .concat(results);
+    }
+
+    private validateSeoTitleWithAllKeywords(seoTitle: string, keywords: string[]) : AnalyzerResult[] {
+        const foundKeywords = keywords.filter(keyword => {
+            return seoTitle.toLowerCase().indexOf(keyword.toLowerCase()) !== -1;
+        });
+
+        if(foundKeywords.length === keywords.length) {
+            return [
+                new AnalyzerError(
+                        this.configuration.titleField,
+                        'SEO Title should only include two keywords maximum',
+                        ResultType.frontmatter
+                )
+            ];
+        }
+        return [];
+    }
+
+    private validateSeoTitle(seoTitle: string, keyword: string) : AnalyzerResult[] {
+        const results = [];
+        if (seoTitle && seoTitle.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+            results.push(new AnalyzerError(this.configuration.titleField, `Keyword '${keyword}' not found`, ResultType.frontmatter));
+        }
+        if (seoTitle && seoTitle.length > 60) {
+            results.push(new AnalyzerError(this.configuration.titleField, 'SEO Title should have 60 Characters max.', ResultType.frontmatter));
+        }
+        return results;
     }
 }

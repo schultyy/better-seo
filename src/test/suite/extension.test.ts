@@ -29,7 +29,21 @@ Keywords:
 seo_title: This is about seo in your business
 seo_description: Learn how to seo perfectly in your business
 ---
-# How to do SEO`;
+# How to do SEO
+
+Lorem Ipsum Dolor Sit Amet in SEO and Business.`;
+
+const threeMatchingKeywords = `---
+Keywords:
+- SEO
+- Business
+- SaaS
+seo_title: This is about seo in your SaaS business
+seo_description: Learn how to seo perfectly in your business
+---
+# How to do SEO in your SaaS business
+
+Lorem Ipsum Dolor Sit Amet in SEO Business and SaaS`;
 
 const noMatchingKeywords = `---
 Keywords:
@@ -126,6 +140,31 @@ suite('Extension Test Suite', () => {
         test('with matching keyword returns zero findings', () => {
             const results = runAnalysis(singleMatchingKeyword, frontmatterConfiguration);
             assert.strictEqual(results.length, 0);
+        });
+
+        describe('with several keywords', () => {
+            test('passes when headline contains one matching keyword', () => {
+                const results = runAnalysis(singleMatchingKeyword, frontmatterConfiguration);
+                assert.ok(results.length === 0);
+            });
+
+            test('passes when seo headline contains two matching keywords', () => {
+                const results = runAnalysis(twoMatchingKeywords, frontmatterConfiguration);
+                const errors = results.filter(result => result.title === frontmatterConfiguration.titleField);
+                assert.strictEqual(errors.length, 0);
+            });
+
+            test('exclaims if more than two keywords appear in seo_title', () => {
+                const results = runAnalysis(threeMatchingKeywords, frontmatterConfiguration);
+                const error = results.find(result => result.title === frontmatterConfiguration.titleField);
+                assert.strictEqual(error?.message, 'SEO Title should only include two keywords maximum');
+            });
+
+            test('only has the main keyword in the article headline', () => {
+                const results = runAnalysis(threeMatchingKeywords, frontmatterConfiguration);
+                const error = results.find(result => result.title === 'Article Title');
+                assert.strictEqual(error?.message, 'Article Title should only include the top keyword');
+            });
         });
 
         describe('without matching keyword', () => {
