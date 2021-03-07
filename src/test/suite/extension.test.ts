@@ -57,6 +57,17 @@ seo_description: Learn how to seo perfectly in your business. And Banana
 
 Lorem Ipsum Dolor Sit Amet in SEO Business and SaaS`;
 
+const twoMatchingKeywordsFirstRepeatsInSeoDescription = `---
+Keywords:
+- SEO
+- Business
+seo_title: This is about seo in your SaaS business
+seo_description: Learn how to seo perfectly in your business for better seo.
+---
+# How to do SEO in your SaaS business
+
+Lorem Ipsum Dolor Sit Amet in SEO Business and SaaS`;
+
 
 const noMatchingKeywords = `---
 Keywords:
@@ -181,6 +192,12 @@ suite('Extension Test Suite', () => {
 
             test('exclaims if more than the first two keywords show up in the seo_description', () => {
                 const results = runAnalysis(threeMatchingKeywordsInSeoDescription, frontmatterConfiguration);
+                const error = results.find(result => result.title === frontmatterConfiguration.descriptionField);
+                assert.ok(error);
+            });
+
+            test('exclaims if first keyword appears several times in seo_description', () => {
+                const results = runAnalysis(twoMatchingKeywordsFirstRepeatsInSeoDescription, frontmatterConfiguration);
                 const error = results.find(result => result.title === frontmatterConfiguration.descriptionField);
                 assert.ok(error);
             });

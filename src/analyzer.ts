@@ -123,6 +123,8 @@ export class FrontmatterAnalyzer {
         if (!seoDescription) {
             results.push(new AnalyzerError(this.configuration.descriptionField, 'Field not found', ResultType.frontmatter));
         } else {
+            results = results.concat(this.firstKeywordMultipleSeoDescriptionOccurrences(seoDescription, keywords[0]));
+
             if(keywords.length === 1) {
                 results = results.concat(this.validateSeoDescription(seoDescription, keywords[0]));
             }
@@ -150,6 +152,20 @@ export class FrontmatterAnalyzer {
         }
 
         return results;
+    }
+
+    private firstKeywordMultipleSeoDescriptionOccurrences(seoDescription: string, firstKeyword: string) : AnalyzerResult[] {
+        const regex = new RegExp(`${firstKeyword}+`, 'ig');
+        if((seoDescription.match(regex) || []).length > 1) {
+            return [
+                new AnalyzerError(
+                    this.configuration.descriptionField,
+                    'Should not contain primary keyword more than once',
+                    ResultType.frontmatter
+                )
+            ];
+        }
+        return [];
     }
 
     private validateSeoDescriptionWithAllKeywords(seoDescription: string, keywords: string[]) : AnalyzerResult[] {
