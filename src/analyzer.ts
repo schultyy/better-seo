@@ -84,7 +84,7 @@ export class FileAnalyzer {
     }
 
     private validateHeader(keywords: string[]) : Array<AnalyzerResult> {
-        const analyzerResults = [];
+        const analyzerResults :AnalyzerResult[] = [];
         let header = this.children.find(child => child.type === 'Header' && child.depth === 1);
         if(!header) {
             analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
@@ -94,15 +94,21 @@ export class FileAnalyzer {
         }
 
         if(header) {
-            const foundKeywords = keywords.slice(1).filter(keyword => header?.raw.indexOf(keyword));
-            if(foundKeywords.length > 0) {
-                analyzerResults.push(
-                    new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body)
-                );
+            const analyzerResult = this.analyzeTitleForRemainingKeywords(keywords, header);
+            if(analyzerResult) {
+                analyzerResults.push(analyzerResult);
             }
         }
 
         return analyzerResults;
+    }
+
+    private analyzeTitleForRemainingKeywords(keywords: string[], header: AstChild) : AnalyzerResult | null {
+        const foundKeywords = keywords.slice(1).filter(keyword => header?.raw.indexOf(keyword));
+        if (foundKeywords.length > 0) {
+            return new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body);
+        }
+        return null;
     }
 }
 
