@@ -2,10 +2,10 @@
 
 ![Better SEO Logo](https://github.com/schultyy/better-seo/blob/8e67368054112dab8db5c926a44e6f0f6e8b954a/resources/better_seo.png)
 
-Are you a Software Developer using [VSCode](https://code.visualstudio.com/) to write Blog Posts and do you care about getting found on Google? This extension is for you!
+You are a software developer and you care about well-written content. But what you care about even more is content that also ranks high on Google.
+That's where SEO comes into play. You don't need to learn all SEO rules so your blog posts rank high on Google. You can focus on writing high-quality content using [VSCode](https://code.visualstudio.com/) and use Better SEO to optimize your posts once they're ready to publish.
 
-You might already be using third-party tools to ensure SEO compliance outside of VSCode such as [Yoast SEO in Wordpress](https://yoast.com/wordpress/plugins/seo/). But back-porting changes from Wordpress back to your Markdown file is tedious. It takes a long time and the article is already finished.
-Better SEO provides you with feedback directly in VSCode, so you can produce high-quality content that gets found by search engines.
+Better SEO provides you with feedback directly in VSCode.
 
 ## Features
 
@@ -21,6 +21,8 @@ seo_title: How to get found online
 seo_description: Getting found online means organic traffic.
 ---
 # How to get found online - A guide with examples
+
+Lorem Ipsum Dolor sit amet.
 ```
 
 An article needs a `seo_title` and `seo_description`. These are the equivalent fields for `SEO TITLE` and `SEO/Meta Description` on your blog. Also, if you're using any keyword research tools such as [Google Keyword Planner](https://ads.google.com/home/tools/keyword-planner/), [ahrefs](ahrefs.com) or [SEMRush](https://www.semrush.com/), use `keywords` to keep track of your keywords for this article.
