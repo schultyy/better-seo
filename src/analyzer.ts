@@ -67,6 +67,7 @@ export class FileAnalyzer {
         results = results.concat(this.validateHeaderStructure());
         results = results.concat(this.validateHeader(keywords));
         results = results.concat(keywords.flatMap(keyword => this.validateFirstParagraph(keyword)));
+        results = results.concat(this.validateParagraphLength());
         return results;
     }
 
@@ -77,6 +78,21 @@ export class FileAnalyzer {
             ];
         }
         return [];
+    }
+
+    private validateParagraphLength() : Array<AnalyzerResult> {
+        const paragraphs = this.children.filter(child => child.type === 'Paragraph');
+        const longParagraphErrors = paragraphs.filter(paragraph => {
+            return paragraph.raw.length >= 200;
+        })
+        .map(paragraph => {
+            return new AnalyzerError(
+                'Paragraph',
+                `Paragraph starting with ${paragraph.raw.substr(0, 20)} has more than 200 characters. Consider breaking it up`,
+                ResultType.body
+            );
+        });
+        return longParagraphErrors;
     }
 
     private validateFirstParagraph(keyword: string) : Array<AnalyzerResult> {
