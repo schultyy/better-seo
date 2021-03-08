@@ -155,6 +155,18 @@ seo_description: It's challenging to sell software development services. Let's e
 Companies often don't want external developers on their team. Does this objection sound familiar? You offer software consulting services, on-site or even remote. But new clients don't bite. The question is: How do you sell consulting services? What's the secret? How do you build a full sales pipeline for your software development consulting firm?
 `;
 
+const extraLongHeadline = `---
+Keywords:
+- VSCode
+seo_title: Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet fsdfdsfdsfsdfsdfdsf
+seo_description: It's challenging to sell software development services. Let's explore how to build trust with clients to grow your business sustainably over the long-term.
+---
+
+# Building a VSCode SEO Plugin Lorem Ipsum Dolor Sit Amet
+
+Lorem Ipsum Dolor Sit Amet. Lorem Ipsum Dolor Sit Amet. Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.
+`;
+
 suite('Extension Test Suite', () => {
     const frontmatterConfiguration = {
         titleField: 'seo_title',
@@ -232,6 +244,12 @@ suite('Extension Test Suite', () => {
                 const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
                 const error = results.find(result => result.title === frontmatterConfiguration.titleField);
                 assert.ok(error === undefined);
+            });
+
+            test('does return a validation error for an extra-long headline', () => {
+                const results = runAnalysis(extraLongHeadline, frontmatterConfiguration);
+                const error = results.find(result => result.title === frontmatterConfiguration.titleField);
+                assert.ok(error);
             });
         });
 
