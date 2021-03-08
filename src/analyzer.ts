@@ -16,11 +16,32 @@ export class AnalyzerError extends AnalyzerResult {
     }
 }
 
+export interface Position {
+    line: number;
+    column: number;
+}
+
+export interface Location {
+    start: Position;
+    end: Position;
+}
+
+export class ParagraphError extends AnalyzerError {
+    constructor(
+        public title: string,
+        public loc: Location,
+        public message: string,
+        public resultType: ResultType) {
+            super(title, message, resultType);
+    }
+}
+
 interface AstChild {
     type: string;
     value: string;
     raw: string;
     depth?: number;
+    loc: Location;
     children?: Array<AstChild>;
 }
 
@@ -85,9 +106,10 @@ export class FileAnalyzer {
         const longParagraphErrors = paragraphs.filter(paragraph => {
             return paragraph.raw.length >= 200;
         })
-        .map(paragraph => {
-            return new AnalyzerError(
+        .map((paragraph) => {
+            return new ParagraphError(
                 'Paragraph',
+                paragraph.loc,
                 `Paragraph starting with ${paragraph.raw.substr(0, 20)} has more than 200 characters. Consider breaking it up`,
                 ResultType.body
             );

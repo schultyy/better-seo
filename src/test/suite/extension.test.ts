@@ -5,7 +5,7 @@ import { describe } from 'mocha';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { extractKeywords, runAnalysis } from '../../analyzer';
+import { extractKeywords, ParagraphError, runAnalysis } from '../../analyzer';
 
 function loadMarkdown(filename: string) : string {
     const filePath = path.join(__filename, '..', 'support', filename);
@@ -268,8 +268,9 @@ suite('Extension Test Suite', () => {
 
             test('does return an error for an extra-long paragraph', () => {
                 const results = runAnalysis(extraLongParagraph, frontmatterConfiguration);
-                const error = results.find(result => result.title === 'Paragraph');
+                const error = <ParagraphError> results.find(result => result.title === 'Paragraph');
                 assert.ok(error);
+                assert.ok(error.loc);
             });
         });
 
