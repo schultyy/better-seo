@@ -5,7 +5,7 @@ import { describe } from 'mocha';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { extractKeywords, runAnalysis } from '../../analyzer';
+import { extractKeywords, ParagraphError, runAnalysis } from '../../analyzer';
 
 function loadMarkdown(filename: string) : string {
     const filePath = path.join(__filename, '..', 'support', filename);
@@ -167,6 +167,20 @@ seo_description: It's challenging to sell software development services. Let's e
 Lorem Ipsum Dolor Sit Amet. Lorem Ipsum Dolor Sit Amet. Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.Lorem Ipsum Dolor Sit Amet.
 `;
 
+const extraLongParagraph = `---
+Keywords:
+- VSCode
+seo_title: Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet fsdfdsfdsfsdfsdfdsf
+seo_description: It's challenging to sell software development services. Let's explore how to build trust with clients to grow your business sustainably over the long-term.
+---
+
+# Building a VSCode SEO Plugin Lorem Ipsum Dolor Sit Amet
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tellus mauris a diam maecenas sed enim ut sem viverra. Lorem ipsum dolor sit amet consectetur adipiscing. Nisl condimentum id venenatis a condimentum vitae sapien pellentesque habitant. Ut consequat semper viverra nam. Varius sit amet mattis vulputate enim nulla aliquet porttitor. Proin sed libero enim sed faucibus turpis in eu. Velit laoreet id donec ultrices tincidunt arcu non. Egestas maecenas pharetra convallis posuere morbi leo urna molestie at. Vivamus at augue eget arcu dictum varius duis. Elementum tempus egestas sed sed risus pretium quam vulputate. Neque viverra justo nec ultrices dui sapien eget. Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi tristique. Et leo duis ut diam quam. Volutpat ac tincidunt vitae semper quis lectus nulla at. Integer quis auctor elit sed vulputate. Malesuada fames ac turpis egestas sed tempus urna. Euismod quis viverra nibh cras pulvinar mattis nunc sed blandit.
+
+Nisi est sit amet facilisis magna. Nisl pretium fusce id velit ut tortor pretium viverra suspendisse. Tellus molestie nunc non blandit. Urna et pharetra pharetra massa massa. Pretium nibh ipsum consequat nisl vel pretium lectus. Senectus et netus et malesuada. Morbi tristique senectus et netus et malesuada fames ac. Nibh tortor id aliquet lectus proin nibh nisl condimentum id. Varius sit amet mattis vulputate enim nulla. Semper feugiat nibh sed pulvinar. At urna condimentum mattis pellentesque id. Sollicitudin nibh sit amet commodo.
+`;
+
 suite('Extension Test Suite', () => {
     const frontmatterConfiguration = {
         titleField: 'seo_title',
@@ -250,6 +264,13 @@ suite('Extension Test Suite', () => {
                 const results = runAnalysis(extraLongHeadline, frontmatterConfiguration);
                 const error = results.find(result => result.title === frontmatterConfiguration.titleField);
                 assert.ok(error);
+            });
+
+            test('does return an error for an extra-long paragraph', () => {
+                const results = runAnalysis(extraLongParagraph, frontmatterConfiguration);
+                const error = <ParagraphError> results.find(result => result.title === 'Paragraph');
+                assert.ok(error);
+                assert.ok(error.loc);
             });
         });
 
