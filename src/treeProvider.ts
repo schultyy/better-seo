@@ -1,5 +1,5 @@
-import { Event, EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace } from "vscode";
-import { AnalyzerResult, FileAnalyzer, FrontmatterAnalyzer, ResultType, runAnalysis } from "./analyzer";
+import { Event, EventEmitter, Position, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace } from "vscode";
+import { AnalyzerError, AnalyzerResult, Location, ParagraphError, ResultType, runAnalysis } from "./analyzer";
 import * as path from 'path';
 
 export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
@@ -21,6 +21,7 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
         return element;
     }
     getChildren(element?: Finding): ProviderResult<ResultsTreeItem[]> {
+        console.log(element);
         if(!element) {
             const frontmatter = new HeaderItem('Frontmatter', this, TreeItemCollapsibleState.Expanded);
             const body = new HeaderItem('Body', this, TreeItemCollapsibleState.Expanded);
@@ -32,15 +33,60 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
             }));
         }
         else if(element.label === 'Body') {
-            return Promise.resolve(this.results.filter(r => r.resultType === ResultType.body).map(result => {
-                return new Finding(result.title, result.message, this, TreeItemCollapsibleState.None);
-            }));
+            return Promise.resolve(
+                this.generateBodyErrors()
+            );
+        }
+        else if(element.label === 'Paragraph') {
+            return Promise.resolve(
+                this.generateParagraphErrors(<ParagraphFinding> element)
+            );
         }
         else {
             return Promise.resolve([]);
         }
     }
 
+    generateParagraphErrors(element: ParagraphFinding): FindingWithPosition[] {
+
+        const startLocationToString = (loc: Location) => (
+            `Line:Column ${element.paragraph.loc.start.line}:${element.paragraph.loc.start.column}`
+        );
+        const endLocationToString = (loc: Location) => (
+            `Line:Column ${element.paragraph.loc.end.line}:${element.paragraph.loc.end.column}`
+        );
+
+        return [
+            new FindingWithPosition(
+                "Start",
+                startLocationToString(element.paragraph.loc),
+                element.paragraph.loc,
+                this,
+                TreeItemCollapsibleState.None
+            ),
+            new FindingWithPosition(
+                "End",
+                endLocationToString(element.paragraph.loc),
+                element.paragraph.loc,
+                this,
+                TreeItemCollapsibleState.None
+            )
+        ];
+    }
+
+    private generateBodyErrors(): Finding[] | PromiseLike<Finding[]> {
+        return this.results.filter(r => r.resultType === ResultType.body).map(result => {
+            return this.generateBodyError(result);
+        });
+    }
+
+    private generateBodyError(result: AnalyzerResult): Finding {
+        if (result instanceof ParagraphError) {
+            return new ParagraphFinding(result.title, result.message, result, this, TreeItemCollapsibleState.Collapsed);
+        } else {
+            return new Finding(result.title, result.message, this, TreeItemCollapsibleState.None);
+        }
+    }
 
     private static get titleAttribute() : string {
         const configuration = workspace.getConfiguration('betterseo');
@@ -100,11 +146,38 @@ export class Finding extends ResultsTreeItem {
         public readonly collapsibleState: TreeItemCollapsibleState
         ) {
             super(label, provider, collapsibleState);
-            this.description = description;
         }
-        iconPath = {
-            light: path.join(__filename, '..', '..', 'resources', 'light', 'error icon.svg'),
-            dark: path.join(__filename, '..', '..', 'resources', 'dark', 'error icon.svg')
-        };
+    iconPath = {
+        light: path.join(__filename, '..', '..', 'resources', 'light', 'error icon.svg'),
+        dark: path.join(__filename, '..', '..', 'resources', 'dark', 'error icon.svg')
+    };
+}
 
-    }
+export class ParagraphFinding extends Finding {
+    constructor(
+        public readonly label: string,
+        public readonly description: string,
+        public readonly paragraph: ParagraphError,
+        public provider: TreeProvider,
+        public readonly collapsibleState: TreeItemCollapsibleState
+        ) {
+            super(label, description, provider, collapsibleState);
+        }
+}
+
+export class FindingWithPosition extends Finding {
+    constructor(
+        public readonly label: string,
+        public readonly description: string,
+        public readonly location: Location,
+        public provider: TreeProvider,
+        public readonly collapsibleState: TreeItemCollapsibleState
+        ) {
+            super(label, description, provider, collapsibleState);
+        }
+
+    iconPath = {
+        light: path.join(__filename, '..', '..', 'resources', 'light', 'text-icon-light.svg'),
+        dark: path.join(__filename, '..', '..', 'resources', 'dark', 'text-icon-dark.svg')
+    };
+}
