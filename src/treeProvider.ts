@@ -21,7 +21,6 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
         return element;
     }
     getChildren(element?: Finding): ProviderResult<ResultsTreeItem[]> {
-        console.log(element);
         if(!element) {
             const frontmatter = new HeaderItem('Frontmatter', this, TreeItemCollapsibleState.Expanded);
             const body = new HeaderItem('Body', this, TreeItemCollapsibleState.Expanded);
