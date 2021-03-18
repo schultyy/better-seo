@@ -100,7 +100,9 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
     }
 
     private analyze() {
-        if(!window.activeTextEditor?.document.fileName.endsWith("md")) {
+        const fileNameSplit = window.activeTextEditor?.document.fileName.split('.');
+        const fileExtension = fileNameSplit?.[fileNameSplit.length - 1];
+        if(fileExtension && !['md', 'mdx'].includes(fileExtension)) {
             window.showErrorMessage("Better SEO: Current file is not a Markdown file");
             return;
         }
