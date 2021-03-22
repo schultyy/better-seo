@@ -69,10 +69,10 @@
   resolved "https://registry.yarnpkg.com/@textlint/ast-node-types/-/ast-node-types-4.4.2.tgz#d3fda5c9086baba04bc75440039ccf18415c8446"
   integrity sha512-m5brKbI7UY/Q8sbIZ7z1KB8ls04nRILshz5fPQ4EZ04jL19qrrUHJR8A6nK3vJ/GelkDWl4I0VDYSAjLEFQV8g==
 
-"@textlint/markdown-to-ast@^6.3.3":
-  version "6.3.3"
-  resolved "https://registry.yarnpkg.com/@textlint/markdown-to-ast/-/markdown-to-ast-6.3.3.tgz#4ca279c1bbb00c37870e48acbb470ae2bb9b0a7c"
-  integrity sha512-CG8igvwlmcHb/d2zXDXchXgqofnDsxQDYOMpsk4zv1EN8PL5ycijQgmKJ0yB0ZxFduv0AR22rnJvPtB4ymzCyQ==
+"@textlint/markdown-to-ast@^6.3.4":
+  version "6.3.4"
+  resolved "https://registry.yarnpkg.com/@textlint/markdown-to-ast/-/markdown-to-ast-6.3.4.tgz#392c14d1f8b0643ada220d99fc0ee9f1e375fa27"
+  integrity sha512-LLScbDRXov1l4U4OCLJ5clu9eWNonBG+rhuArwYAHpf0hwIoNoETfAQvrNtXZG/NZ96fdWv4PLtaN6dA4ldRdQ==
   dependencies:
     "@textlint/ast-node-types" "^4.4.2"
     debug "^4.3.1"
