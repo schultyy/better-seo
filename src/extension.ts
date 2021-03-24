@@ -3,6 +3,19 @@
 import * as vscode from 'vscode';
 import TreeProvider, { FindingWithPosition } from './treeProvider';
 
+function moveCursor(firstSelection: FindingWithPosition) {
+    const editor = vscode.window.activeTextEditor;
+    if(!editor) {
+        return;
+    }
+    const position = editor.selection.active;
+
+    const startLine = firstSelection.location.start.line === 0 ? 0 : firstSelection.location.start.line - 1;
+    const newPosition = position.with(startLine, firstSelection.location.start.column);
+    const newSelection = new vscode.Selection(newPosition, newPosition);
+    editor.selection = newSelection;
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -19,18 +32,9 @@ export function activate(context: vscode.ExtensionContext) {
         if(event.selection.length === 0) {
             return;
         }
-
         const firstSelection = event.selection[0];
-
         if(firstSelection instanceof FindingWithPosition) {
-            const editor = vscode.window.activeTextEditor;
-            if(!editor) {
-                return;
-            }
-            const position = editor.selection.active;
-            const newPosition = position.with(firstSelection.location.start.line - 1, firstSelection.location.start.column);
-            const newSelection = new vscode.Selection(newPosition, newPosition);
-            editor.selection = newSelection;
+            moveCursor(firstSelection);
         }
     });
 
