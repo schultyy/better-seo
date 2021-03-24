@@ -108,7 +108,7 @@ export class FileAnalyzer {
             return firstLevelHeadlines.map(firstLevelHeadline => {
                 return new HeaderError(
                         'Header',
-                        firstLevelHeadlines[0].loc,
+                        firstLevelHeadline.loc,
                         'Inconsistent Header Structure. Only one first level Header allowed.',
                         ResultType.body);
             });
