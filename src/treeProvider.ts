@@ -1,5 +1,5 @@
 import { Event, EventEmitter, Position, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace } from "vscode";
-import { AnalyzerError, AnalyzerResult, Location, ParagraphError, ResultType, runAnalysis } from "./analyzer";
+import { AnalyzerError, AnalyzerResult, HeaderError, Location, ParagraphError, ResultType, runAnalysis } from "./analyzer";
 import * as path from 'path';
 
 export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
@@ -41,9 +41,40 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
                 this.generateParagraphErrors(<ParagraphFinding> element)
             );
         }
+        else if(element.label === 'Header') {
+            return Promise.resolve(
+                this.generateHeaderErrors(<HeaderFinding> element)
+            )
+        }
         else {
             return Promise.resolve([]);
         }
+    }
+
+    generateHeaderErrors(element: HeaderFinding): FindingWithPosition[] {
+        const startLocationToString = (loc: Location) => (
+            `Line:Column ${element.header.loc.start.line}:${element.header.loc.start.column}`
+        );
+        const endLocationToString = (loc: Location) => (
+            `Line:Column ${element.header.loc.end.line}:${element.header.loc.end.column}`
+        );
+
+        return [
+            new FindingWithPosition(
+                "Start",
+                startLocationToString(element.header.loc),
+                element.header.loc,
+                this,
+                TreeItemCollapsibleState.None
+            ),
+            new FindingWithPosition(
+                "End",
+                endLocationToString(element.header.loc),
+                element.header.loc,
+                this,
+                TreeItemCollapsibleState.None
+            )
+        ];
     }
 
     generateParagraphErrors(element: ParagraphFinding): FindingWithPosition[] {
@@ -82,7 +113,11 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
     private generateBodyError(result: AnalyzerResult): Finding {
         if (result instanceof ParagraphError) {
             return new ParagraphFinding(result.title, result.message, result, this, TreeItemCollapsibleState.Collapsed);
-        } else {
+        }
+        else if (result instanceof HeaderError) {
+            return new HeaderFinding(result.title, result.message, result, this, TreeItemCollapsibleState.Collapsed);
+        }
+        else {
             return new Finding(result.title, result.message, this, TreeItemCollapsibleState.None);
         }
     }
@@ -152,6 +187,18 @@ export class Finding extends ResultsTreeItem {
         light: path.join(__filename, '..', '..', 'resources', 'light', 'error icon.svg'),
         dark: path.join(__filename, '..', '..', 'resources', 'dark', 'error icon.svg')
     };
+}
+
+export class HeaderFinding extends Finding {
+    constructor(
+        public readonly label: string,
+        public readonly description: string,
+        public readonly header: HeaderError,
+        public provider: TreeProvider,
+        public readonly collapsibleState: TreeItemCollapsibleState
+        ) {
+            super(label, description, provider, collapsibleState);
+        }
 }
 
 export class ParagraphFinding extends Finding {

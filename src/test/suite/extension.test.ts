@@ -310,10 +310,10 @@ suite('Extension Test Suite', () => {
                 assert.ok(headerError === null || headerError === undefined);
             });
 
-            test('Only returns one Header error even for multiple keywords', () => {
+            test('Returns one Header error for each first-level headline', () => {
                 const results = runAnalysis(withIncorrectHeadersMultipleKeywords, frontmatterConfiguration);
-                const headerError = results.filter(result => result.title === 'Header');
-                assert.strictEqual(headerError.length, 1);
+                const headerError = results.filter(result => result.title === 'Header' && result.message.startsWith('Inconsistent Header Structure.'));
+                assert.strictEqual(headerError.length, 2);
             });
         });
 
