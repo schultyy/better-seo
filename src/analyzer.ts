@@ -36,6 +36,16 @@ export class ParagraphError extends AnalyzerError {
     }
 }
 
+export class HeaderError extends AnalyzerError {
+    constructor(
+        public title: string,
+        public loc: Location,
+        public message: string,
+        public resultType: ResultType) {
+            super(title, message, resultType);
+        }
+}
+
 interface AstChild {
     type: string;
     value: string;
@@ -93,10 +103,15 @@ export class FileAnalyzer {
     }
 
     private validateHeaderStructure() : Array<AnalyzerResult> {
-        if(this.children.filter(child => child.type === 'Header' && child.depth === 1).length > 1) {
-            return [
-                new AnalyzerError('Header', 'Inconsistent Header Structure. Only one first level Header allowed.', ResultType.body)
-            ];
+        const firstLevelHeadlines = this.children.filter(child => child.type === 'Header' && child.depth === 1);
+        if(firstLevelHeadlines.length > 1) {
+            return firstLevelHeadlines.map(firstLevelHeadline => {
+                return new HeaderError(
+                        'Header',
+                        firstLevelHeadline.loc,
+                        'Inconsistent Header Structure. Only one first level Header allowed.',
+                        ResultType.body);
+            });
         }
         return [];
     }
