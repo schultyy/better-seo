@@ -31,15 +31,15 @@ An article needs a `seo_title` and `seo_description`. These are the equivalent f
 
 Open the Better SEO View in the Activity Bar on the Left-hand side.
 
-![Better SEO in the Sidebar](resources/sidebar.png)
+![Better SEO in the Sidebar](https://raw.githubusercontent.com/schultyy/better-seo/35987c419133382d554e3e28ac4bd24e14011f7d/resources/sidebar.png)
 
 Once the View opened, click the Refresh Button in the top-right corner to start the analysis:
 
-![refresh button](resources/refresh_button.png)
+![refresh button](https://raw.githubusercontent.com/schultyy/better-seo/35987c419133382d554e3e28ac4bd24e14011f7d/resources/refresh_button.png)
 
 If you have the `keywords` key in your Markdown file, Better SEO will use the keywords in your file for the analysis. Once the analysis is completed, you will see the results in the TreeView:
 
-![Analysis Results](resources/analysis_results.png)
+![Analysis Results](https://raw.githubusercontent.com/schultyy/better-seo/35987c419133382d554e3e28ac4bd24e14011f7d/resources/analysis_results.png)
 
 ### What it validates
 
@@ -60,7 +60,7 @@ By default, Better SEO looks for `seo_title` and `seo_description` within the bl
 
 Then, search for `BetterSEO`:
 
-![Better SEO Settings Screenshot](resources/settings_screenshot.png)
+![Better SEO Settings Screenshot](https://raw.githubusercontent.com/schultyy/better-seo/35987c419133382d554e3e28ac4bd24e14011f7d/resources/settings_screenshot.png)
 
 Now, you can configure different values for both `seo_title` and `seo_description`.
 
