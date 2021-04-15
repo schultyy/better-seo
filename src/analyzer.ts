@@ -99,6 +99,7 @@ export class FileAnalyzer {
         results = results.concat(this.validateHeader(keywords));
         results = results.concat(keywords.flatMap(keyword => this.validateFirstParagraph(keyword)));
         results = results.concat(this.validateParagraphLength());
+        results = results.concat(this.validateArticleLength());
         return results;
     }
 
@@ -119,13 +120,15 @@ export class FileAnalyzer {
     private validateParagraphLength() : Array<AnalyzerResult> {
         const paragraphs = this.children.filter(child => child.type === 'Paragraph');
         const longParagraphErrors = paragraphs.filter(paragraph => {
-            return paragraph.raw.length >= 200;
+            return paragraph.raw
+                            .split(/\s+/)
+                            .length >= 200;
         })
         .map((paragraph) => {
             return new ParagraphError(
                 'Paragraph',
                 paragraph.loc,
-                `Paragraph starting with ${paragraph.raw.substr(0, 20)} has more than 200 characters. Consider breaking it up`,
+                `Paragraph starting with ${paragraph.raw.substr(0, 20)} has more than 200 characters(${paragraph.raw.length}). Consider breaking it up`,
                 ResultType.body
             );
         });
@@ -175,6 +178,21 @@ export class FileAnalyzer {
             return new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body);
         }
         return null;
+    }
+
+    private validateArticleLength() : Array<AnalyzerResult> {
+        const paragraphs = this.children.filter(child => child.type === 'Paragraph')
+                                        .filter(child => child.children)
+                                        .flatMap(child => child.children?.filter(grandChild => grandChild.type === 'Str'));
+
+        const totalLength = paragraphs.flatMap(textElement => textElement ? textElement.raw.split(/\s+/) : [])
+                                        .reduce((acc, _currentValue) => acc + 1, 0);
+        if (totalLength < 300) {
+            return [
+                new AnalyzerError('Article Length', `Article is too short. Expected: At least 300 Characters. Actual Length: ${totalLength}`, ResultType.body)
+            ];
+        }
+        return [];
     }
 }
 

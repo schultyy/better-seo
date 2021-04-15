@@ -49,6 +49,7 @@ If you have the `keywords` key in your Markdown file, Better SEO will use the ke
 - The text length of `seo_title`
 - The text length of `seo_description`
 - Headline structure
+- The total Article length
 
 ### Configuration
 
