@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.8.1
+
+- Updates the change log file with all previous release information
+
 ## 1.8.0
 
 - Requires vscode `1.55.0`.
