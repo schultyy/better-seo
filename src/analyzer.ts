@@ -119,13 +119,15 @@ export class FileAnalyzer {
     private validateParagraphLength() : Array<AnalyzerResult> {
         const paragraphs = this.children.filter(child => child.type === 'Paragraph');
         const longParagraphErrors = paragraphs.filter(paragraph => {
-            return paragraph.raw.length >= 200;
+            return paragraph.raw
+                            .split(/\s+/)
+                            .length >= 200;
         })
         .map((paragraph) => {
             return new ParagraphError(
                 'Paragraph',
                 paragraph.loc,
-                `Paragraph starting with ${paragraph.raw.substr(0, 20)} has more than 200 characters. Consider breaking it up`,
+                `Paragraph starting with ${paragraph.raw.substr(0, 20)} has more than 200 characters(${paragraph.raw.length}). Consider breaking it up`,
                 ResultType.body
             );
         });

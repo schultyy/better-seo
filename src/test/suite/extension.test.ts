@@ -20,7 +20,11 @@ seo_description: Learn how to seo perfectly
 ---
 # How to do SEO
 
-Explain how to SEO in the first paragraph`;
+Lorem ipsum dolor sit amet SEO,consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Enim tortor at auctor urna nunc id. Nibh sed pulvinar proin gravida hendrerit. Dolor magna eget est lorem ipsum dolor sit amet. Massa id neque aliquam vestibulum morbi blandit cursus. Dolor magna eget est lorem. Dolor purus non enim praesent elementum facilisis leo vel fringilla. Facilisis volutpat est velit egestas. Eget egestas purus viverra accumsan in nisl. Pellentesque nec nam aliquam sem. Enim praesent elementum facilisis leo vel fringilla est. Est ullamcorper eget nulla facilisi etiam dignissim diam quis enim. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus. Faucibus ornare suspendisse sed nisi lacus. Leo vel orci porta non pulvinar neque laoreet suspendisse interdum.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Enim tortor at auctor urna nunc id. Nibh sed pulvinar proin gravida hendrerit. Dolor magna eget est lorem ipsum dolor sit amet. Massa id neque aliquam vestibulum morbi blandit cursus. Dolor magna eget est lorem. Dolor purus non enim praesent elementum facilisis leo vel fringilla. Facilisis volutpat est velit egestas. Eget egestas purus viverra accumsan in nisl. Pellentesque nec nam aliquam sem. Enim praesent elementum facilisis leo vel fringilla est. Est ullamcorper eget nulla facilisi etiam dignissim diam quis enim. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus. Faucibus ornare suspendisse sed nisi lacus. Leo vel orci porta non pulvinar neque laoreet suspendisse interdum. Placerat vestibulum lectus mauris ultrices eros.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Enim tortor at auctor urna nunc id. Nibh sed pulvinar proin gravida hendrerit. Dolor magna eget est lorem ipsum dolor sit amet. Massa id neque aliquam vestibulum morbi blandit cursus. Dolor magna eget est lorem. Dolor purus non enim praesent elementum facilisis leo vel fringilla. Facilisis volutpat est velit egestas. Eget egestas purus viverra accumsan in nisl. Pellentesque nec nam aliquam sem. Enim praesent elementum facilisis leo vel fringilla est. Est ullamcorper eget nulla facilisi etiam dignissim diam quis enim. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus. Faucibus ornare suspendisse sed nisi lacus. Leo vel orci porta non pulvinar neque laoreet suspendisse interdum. Placerat vestibulum lectus mauris ultrices eros. `;
 
 const twoMatchingKeywords = `---
 Keywords:
@@ -209,7 +213,8 @@ suite('Extension Test Suite', () => {
         describe('with several keywords', () => {
             test('passes when headline contains one matching keyword', () => {
                 const results = runAnalysis(singleMatchingKeyword, frontmatterConfiguration);
-                assert.ok(results.length === 0);
+                const errors = results.filter(result => result.title === frontmatterConfiguration.titleField);
+                assert.ok(errors.length === 0);
             });
 
             test('passes when seo headline contains two matching keywords', () => {
@@ -317,7 +322,7 @@ suite('Extension Test Suite', () => {
             });
         });
 
-        describe("Without matching keywords and missing frontmatter keys", () => {
+        describe('Without matching keywords and missing frontmatter keys', () => {
             const results = runAnalysis(withMissingFrontmatterkeys, frontmatterConfiguration);
 
             test('returns two findings', () => {
