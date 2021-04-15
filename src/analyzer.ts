@@ -99,6 +99,7 @@ export class FileAnalyzer {
         results = results.concat(this.validateHeader(keywords));
         results = results.concat(keywords.flatMap(keyword => this.validateFirstParagraph(keyword)));
         results = results.concat(this.validateParagraphLength());
+        results = results.concat(this.validateArticleLength());
         return results;
     }
 
@@ -177,6 +178,21 @@ export class FileAnalyzer {
             return new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body);
         }
         return null;
+    }
+
+    private validateArticleLength() : Array<AnalyzerResult> {
+        const paragraphs = this.children.filter(child => child.type === 'Paragraph')
+                                        .filter(child => child.children)
+                                        .flatMap(child => child.children?.filter(grandChild => grandChild.type === 'Str'));
+
+        const totalLength = paragraphs.flatMap(textElement => textElement ? textElement.raw.split(/\s+/) : [])
+                                        .reduce((acc, _currentValue) => acc + 1, 0);
+        if (totalLength < 300) {
+            return [
+                new AnalyzerError('Article Length', `Article is too short. Expected: At least 300 Characters. Actual Length: ${totalLength}`, ResultType.body)
+            ];
+        }
+        return [];
     }
 }
 
