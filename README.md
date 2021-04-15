@@ -1,6 +1,6 @@
 # Better SEO
 
-![Better SEO Logo](https://github.com/schultyy/better-seo/blob/8e67368054112dab8db5c926a44e6f0f6e8b954a/resources/better_seo.png)
+![Better SEO Logo](https://raw.githubusercontent.com/schultyy/better-seo/main/resources/better_seo.png)
 
 You are a software developer and you care about well-written content. But what you care about even more is content that also ranks high on Google.
 That's where SEO comes into play. You don't need to learn all SEO rules so your blog posts rank high on Google. You can focus on writing high-quality content using [VSCode](https://code.visualstudio.com/) and use Better SEO to optimize your posts once they're ready to publish.
