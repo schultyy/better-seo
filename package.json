@@ -110,6 +110,6 @@
     },
     "dependencies": {
         "@textlint/markdown-to-ast": "^6.3.4",
-        "gray-matter": "^4.0.2"
+        "gray-matter": "^4.0.3"
     }
 }
