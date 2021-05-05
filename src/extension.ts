@@ -38,10 +38,27 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    let disposable = vscode.commands.registerCommand('better-seo.refresh', () => {
+    let disposableRefreshCommand = vscode.commands.registerCommand('better-seo.refresh', () => {
         seoResultTreeProvider.refresh();
     });
-    context.subscriptions.push(disposable);
+
+    let disposableTemplateCommand = vscode.commands.registerCommand('better-seo.new-post', () => {
+        try {
+            vscode.workspace.openTextDocument({
+                language: 'markdown',
+                content: "Hallo!"
+            })
+            .then(document => {
+                console.log(document);
+            });
+        }
+        catch (exc) {
+            console.error(exc);
+        }
+    });
+
+    context.subscriptions.push(disposableRefreshCommand);
+    context.subscriptions.push(disposableTemplateCommand);
 }
 
 // this method is called when your extension is deactivated

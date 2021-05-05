@@ -23,6 +23,7 @@
     ],
     "activationEvents": [
         "onCommand:better-seo.refresh",
+        "onCommand:better-seo.new-post",
         "onView:seo-explorer"
     ],
     "main": "./dist/extension.js",
@@ -35,6 +36,10 @@
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
                 }
+            },
+            {
+                "command": "better-seo.new-post",
+                "title": "Better SEO: New Blog Post"
             }
         ],
         "configuration": {
