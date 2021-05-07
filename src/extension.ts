@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { fromOption } from './blogTemplate';
 import TreeProvider, { FindingWithPosition } from './treeProvider';
 
 function moveCursor(firstSelection: FindingWithPosition) {
@@ -52,9 +53,11 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
+            const fileContent = fromOption(userChoice) || "";
+
             vscode.workspace.openTextDocument({
                 language: 'markdown',
-                content: "Hallo!"
+                content: fileContent
             })
             .then(document => {
                 console.log(document);
