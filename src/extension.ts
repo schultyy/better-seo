@@ -42,8 +42,16 @@ export function activate(context: vscode.ExtensionContext) {
         seoResultTreeProvider.refresh();
     });
 
-    let disposableTemplateCommand = vscode.commands.registerCommand('better-seo.new-post', () => {
+    let disposableTemplateCommand = vscode.commands.registerCommand('better-seo.new-post', async () => {
         try {
+            const userChoice = await vscode.window.showQuickPick(["List Post", "Tutorial"], {
+                canPickMany: false
+            });
+
+            if(!userChoice) {
+                return;
+            }
+
             vscode.workspace.openTextDocument({
                 language: 'markdown',
                 content: "Hallo!"
