@@ -27,6 +27,30 @@ export function fromOption(userOption: string) : string | null {
     }
 }
 
+class BeginnersGuide {
+    private title() {
+        return "# Rust-Lang: The Beginner's Guide\n"
+                + "\n<small>\n"
+                + "- Mention the **topic**\n"
+                + "- State that it's **for beginners**\n"
+                + "- Keep it simple\n"
+                + "</small>\n"
+    }
+
+    private intro() {
+        return "**If you want to write performant code that works once it compiles, Rust is for you.**\n"
+        + "Rust has a learning curve because it does things differently than other languages, "
+        + "but it pays off with more robust, well-tested and performant applications that can run on the command line, "
+        + "on embedded devices and web browsers.\n"
+    }
+
+    render() {
+        return [
+
+        ].join("\n");
+    }
+}
+
 class ExpandedDefinition {
     private title() {
         return "# What is SEO? Search Engine Optimization explained\n"
