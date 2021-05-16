@@ -169,8 +169,10 @@ class StepByStepGuide {
 class ListPost {
     private headline() {
         return "# 11 Proven Ways to Drive Traffic to Your Website"
-                + "\n<sub>Start with the number of items</sub>\n"
-                + "\n<sub>If it makes sense: Mention the desired outcome</sub>\n"
+                + "\n<sub>\n"
+                + "- Start with the number of items\n"
+                + "- If it makes sense: Mention the desired outcome\n"
+                + "</sub>\n"
     }
 
     private subHeadline() {
