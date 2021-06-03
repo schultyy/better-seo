@@ -16,7 +16,7 @@
     "version": "1.8.2",
     "icon": "resources/better_seo.png",
     "engines": {
-        "vscode": "^1.55.0"
+        "vscode": "^1.56.0"
     },
     "categories": [
         "Other"
