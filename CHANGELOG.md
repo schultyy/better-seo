@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.8.2
+
+- Fixes an issue where analysis would silently fail if `Keywords:` within Frontmatter was empty.
+
 ## 1.8.1
 
 - Updates the change log file with all previous release information
