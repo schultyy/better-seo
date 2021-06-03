@@ -65,6 +65,9 @@ export function extractKeywords(currentFile: string) :Array<string> {
 }
 
 function doesKeywordPartialMatch(keyword: string, fieldValue: string) : boolean {
+    if(!keyword) {
+        return false;
+    }
     const splittedKeyword = keyword.split(' ');
     const foundWordResults = [];
 
@@ -156,7 +159,7 @@ export class FileAnalyzer {
         if(!header) {
             analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
         }
-        if(header && header.raw.indexOf(keywords[0]) === -1) {
+        if(header &&keywords[0] && header.raw.indexOf(keywords[0]) === -1) {
             if(!doesKeywordPartialMatch(keywords[0], header.raw)) {
                 analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keywords[0]} not found`, ResultType.body));
             }

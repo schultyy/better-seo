@@ -44,7 +44,7 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
         else if(element.label === 'Header') {
             return Promise.resolve(
                 this.generateHeaderErrors(<HeaderFinding> element)
-            )
+            );
         }
         else {
             return Promise.resolve([]);
