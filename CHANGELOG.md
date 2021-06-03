@@ -3,6 +3,7 @@
 ## 1.8.2
 
 - Fixes an issue where analysis would silently fail if `Keywords:` within Frontmatter was empty.
+- Requires vscode `1.56.0`
 
 ## 1.8.1
 
