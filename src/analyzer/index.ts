@@ -17,7 +17,7 @@ export function extractKeywords(currentFile: string) :Array<string> {
 
 export function runAnalysis(markdownFile: string, configuration: FrontmatterConfiguration) : Array<AnalyzerResult> {
     const keywords = extractKeywords(markdownFile);
-    return analyze(markdownFile, keywords).concat(analyzeFrontmatter(markdownFile, configuration, keywords));
+    return analyze(markdownFile, keywords, configuration).concat(analyzeFrontmatter(markdownFile, configuration, keywords));
 }
 
 function validateFirstParagraph(children : AstChild[], keyword: string) : Array<AnalyzerResult> {
@@ -68,12 +68,12 @@ function validateArticleLength(children: AstChild[]) : Array<AnalyzerResult> {
     return [];
 }
 
-function analyze(markdownFile : string, keywords: string[]) : Array<AnalyzerResult> {
+function analyze(markdownFile : string, keywords: string[], configuration: FrontmatterConfiguration) : Array<AnalyzerResult> {
     const AST = markdownToAst.parse(markdownFile);
     const children = AST.children;
     return [
         validateHeaderStructure(children),
-        validateTitle(markdownFile, children, keywords),
+        validateTitle(markdownFile, children, keywords, configuration),
         keywords.flatMap(keyword => validateFirstParagraph(children, keyword)),
         validateParagraphLength(children),
         validateArticleLength(children)

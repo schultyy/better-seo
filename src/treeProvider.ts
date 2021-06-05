@@ -124,16 +124,22 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
         }
     }
 
-    private static get seoTitleAttribute() : string {
+    private static get titleAttribute() : string {
         const configuration = workspace.getConfiguration('betterseo');
         const title :string = <string> configuration.get('frontmatter.titleAttribute')!;
         return title;
     }
 
+    private static get seoTitleAttribute() : string {
+        const configuration = workspace.getConfiguration('betterseo');
+        const seoTitle :string = <string> configuration.get('frontmatter.seoTitleAttribute')!;
+        return seoTitle;
+    }
+
     private static get seoDescriptionAttribute() : string {
         const configuration = workspace.getConfiguration('betterseo');
-        const description :string = <string> configuration.get('frontmatter.descriptionAttribute')!;
-        return description;
+        const seoDescription :string = <string> configuration.get('frontmatter.seoDescriptionAttribute')!;
+        return seoDescription;
     }
 
     private analyze() {
@@ -151,6 +157,7 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
 
         const markdownFile = currentFile.toString();
         const frontmatterConfig = {
+            titleField: TreeProvider.titleAttribute,
             seoTitleField: TreeProvider.seoTitleAttribute,
             seoDescriptionField: TreeProvider.seoDescriptionAttribute
         };

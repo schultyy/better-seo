@@ -286,6 +286,7 @@ Enim lobortis scelerisque fermentum dui faucibus in ornare. Eget gravida cum soc
 
 suite('Extension Test Suite', () => {
     const frontmatterConfiguration = {
+        titleField: 'title',
         seoTitleField: 'seo_title',
         seoDescriptionField: 'seo_description'
     };

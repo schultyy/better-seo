@@ -1,6 +1,7 @@
 import matter = require("gray-matter");
 import { AstChild } from "./ast";
 import { AnalyzerError, AnalyzerResult, HeaderError, ResultType } from "./errors";
+import { FrontmatterConfiguration } from "./frontmatterConfiguration";
 import { doesKeywordPartialMatch } from "./utils";
 
 export function validateHeaderStructure(children: AstChild[]) : Array<AnalyzerResult> {
@@ -25,42 +26,42 @@ function analyzeTitleForRemainingKeywords(keywords: string[], header: string) : 
     return null;
 }
 
-function isTitlePresent(markdownFile: string, children: AstChild[]) : boolean {
+function isTitlePresent(markdownFile: string, children: AstChild[], configuration : FrontmatterConfiguration) : boolean {
     let header = children.find(child => child.type === 'Header' && child.depth === 1);
     if(!header) {
         const frontmatter = matter(markdownFile);
-        return !!frontmatter.data['title'];
+        return !!frontmatter.data[configuration.titleField];
     }
     return true;
 }
 
-function hasDuplicateTitle(markdownFile: string, children: AstChild[]) : boolean {
+function hasDuplicateTitle(markdownFile: string, children: AstChild[], frontmatterConfiguration: FrontmatterConfiguration) : boolean {
     const frontmatter = matter(markdownFile);
     let firstLevelHeadline = children.find(child => child.type === 'Header' && child.depth === 1);
-    const frontmatterTitle = frontmatter.data['title'];
+    const frontmatterTitle = frontmatter.data[frontmatterConfiguration.titleField];
     return firstLevelHeadline && frontmatterTitle;
 }
 
-function getHeader(markdownFile : string, children: AstChild[]) : string | undefined {
+function getHeader(markdownFile : string, children: AstChild[], frontmatterConfiguration: FrontmatterConfiguration) : string | undefined {
     const frontmatter = matter(markdownFile);
-    if(frontmatter.data['title']) {
-        return frontmatter.data['title'];
+    if(frontmatter.data[frontmatterConfiguration.titleField]) {
+        return frontmatter.data[frontmatterConfiguration.titleField];
     }
     return children.find(child => child.type === 'Header' && child.depth === 1)?.raw;
 }
 
-export function validateTitle(markdownFile: string, children : AstChild[], keywords: string[]) : Array<AnalyzerResult> {
+export function validateTitle(markdownFile: string, children : AstChild[], keywords: string[], frontmatterConfiguration: FrontmatterConfiguration) : Array<AnalyzerResult> {
     const analyzerResults :AnalyzerResult[] = [];
 
-    if(!isTitlePresent(markdownFile, children)) {
+    if(!isTitlePresent(markdownFile, children, frontmatterConfiguration)) {
         analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
     }
 
-    if(hasDuplicateTitle(markdownFile, children)) {
+    if(hasDuplicateTitle(markdownFile, children, frontmatterConfiguration)) {
         analyzerResults.push(new AnalyzerError('Article Title', 'Found title in First-Level Headline and Frontmatter', ResultType.body));
     }
 
-    const header = getHeader(markdownFile, children);
+    const header = getHeader(markdownFile, children, frontmatterConfiguration);
 
     if(header && keywords[0] && header.indexOf(keywords[0]) === -1) {
         if(!doesKeywordPartialMatch(keywords[0], header)) {
