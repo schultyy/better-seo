@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.0.0
+
+- Allows for the Blogpost's title to be configured in either the first-level headline or the frontmatter (field is configurable)
+- Breaking change: Changes configuration field names to be more specific to accommodate for new title field.
+
 ## 1.8.2
 
 - Fixes an issue where analysis would silently fail if `Keywords:` within Frontmatter was empty.
