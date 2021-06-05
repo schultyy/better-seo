@@ -29,7 +29,6 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     treeView.onDidChangeSelection((event) => {
-        console.log(event instanceof FindingWithPosition);
         if(event.selection.length === 0) {
             return;
         }
@@ -58,9 +57,6 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.workspace.openTextDocument({
                 language: 'markdown',
                 content: fileContent
-            })
-            .then(document => {
-                console.log(document);
             });
         }
         catch (exc) {
