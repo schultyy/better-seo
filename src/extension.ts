@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { fromOption, options } from './blogTemplate';
+import { fromOption, options } from './postTemplates';
 import TreeProvider, { FindingWithPosition } from './treeProvider';
 
 function moveCursor(firstSelection: FindingWithPosition) {
