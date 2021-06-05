@@ -1,4 +1,4 @@
 export interface FrontmatterConfiguration {
-    titleField: string;
-    descriptionField: string;
+    seoTitleField: string;
+    seoDescriptionField: string;
 }

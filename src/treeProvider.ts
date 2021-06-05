@@ -124,13 +124,13 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
         }
     }
 
-    private static get titleAttribute() : string {
+    private static get seoTitleAttribute() : string {
         const configuration = workspace.getConfiguration('betterseo');
         const title :string = <string> configuration.get('frontmatter.titleAttribute')!;
         return title;
     }
 
-    private static get descriptionAttribute() : string {
+    private static get seoDescriptionAttribute() : string {
         const configuration = workspace.getConfiguration('betterseo');
         const description :string = <string> configuration.get('frontmatter.descriptionAttribute')!;
         return description;
@@ -151,8 +151,8 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
 
         const markdownFile = currentFile.toString();
         const frontmatterConfig = {
-            titleField: TreeProvider.titleAttribute,
-            descriptionField: TreeProvider.descriptionAttribute
+            seoTitleField: TreeProvider.seoTitleAttribute,
+            seoDescriptionField: TreeProvider.seoDescriptionAttribute
         };
 
         this.results = runAnalysis(markdownFile, frontmatterConfig);

@@ -259,7 +259,7 @@ Ut faucibus pulvinar elementum integer enim. Sit amet volutpat consequat mauris 
 Enim lobortis scelerisque fermentum dui faucibus in ornare. Eget gravida cum sociis natoque. Enim ut sem viverra aliquet eget. Mattis rhoncus urna neque viverra justo nec ultrices dui sapien. Eget nunc scelerisque viverra mauris in aliquam sem. Risus at ultrices mi tempus imperdiet nulla malesuada pellentesque elit. Auctor augue mauris augue neque gravida in fermentum et. Aliquet bibendum enim facilisis gravida. In hac habitasse platea dictumst vestibulum rhoncus. Nibh nisl condimentum id venenatis a condimentum vitae sapien pellentesque.
 `;
 
-const FirstLevelHeadlineAndFrontmatterTitle = `---
+const firstLevelHeadlineAndFrontmatterTitle = `---
 Keywords:
 - VSCode
 seo_title: Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet fsdfdsfdsfsdfsdfdsf
@@ -286,8 +286,8 @@ Enim lobortis scelerisque fermentum dui faucibus in ornare. Eget gravida cum soc
 
 suite('Extension Test Suite', () => {
     const frontmatterConfiguration = {
-        titleField: 'seo_title',
-        descriptionField: 'seo_description'
+        seoTitleField: 'seo_title',
+        seoDescriptionField: 'seo_description'
     };
 
     vscode.window.showInformationMessage('Start all tests.');
@@ -317,19 +317,19 @@ suite('Extension Test Suite', () => {
         describe('with several keywords', () => {
             test('passes when headline contains one matching keyword', () => {
                 const results = runAnalysis(singleMatchingKeyword, frontmatterConfiguration);
-                const errors = results.filter(result => result.title === frontmatterConfiguration.titleField);
+                const errors = results.filter(result => result.title === frontmatterConfiguration.seoTitleField);
                 assert.ok(errors.length === 0);
             });
 
             test('passes when seo headline contains two matching keywords', () => {
                 const results = runAnalysis(twoMatchingKeywords, frontmatterConfiguration);
-                const errors = results.filter(result => result.title === frontmatterConfiguration.titleField);
+                const errors = results.filter(result => result.title === frontmatterConfiguration.seoTitleField);
                 assert.strictEqual(errors.length, 0);
             });
 
             test('exclaims if more than two keywords appear in seo_title', () => {
                 const results = runAnalysis(threeMatchingKeywords, frontmatterConfiguration);
-                const error = results.find(result => result.title === frontmatterConfiguration.titleField);
+                const error = results.find(result => result.title === frontmatterConfiguration.seoTitleField);
                 assert.strictEqual(error?.message, 'SEO Title should only include two keywords maximum');
             });
 
@@ -341,13 +341,13 @@ suite('Extension Test Suite', () => {
 
             test('exclaims if more than the first two keywords show up in the seo_description', () => {
                 const results = runAnalysis(threeMatchingKeywordsInSeoDescription, frontmatterConfiguration);
-                const error = results.find(result => result.title === frontmatterConfiguration.descriptionField);
+                const error = results.find(result => result.title === frontmatterConfiguration.seoDescriptionField);
                 assert.ok(error);
             });
 
             test('exclaims if first keyword appears several times in seo_description', () => {
                 const results = runAnalysis(twoMatchingKeywordsFirstRepeatsInSeoDescription, frontmatterConfiguration);
-                const error = results.find(result => result.title === frontmatterConfiguration.descriptionField);
+                const error = results.find(result => result.title === frontmatterConfiguration.seoDescriptionField);
                 assert.ok(error);
             });
 
@@ -359,19 +359,19 @@ suite('Extension Test Suite', () => {
 
             test("performs partial match on seo_title", () => {
                 const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
-                const errors = results.filter(result => result.title === frontmatterConfiguration.titleField);
+                const errors = results.filter(result => result.title === frontmatterConfiguration.seoTitleField);
                 assert.strictEqual(errors.length, 0);
             });
 
             test('does not complain about second keyword in seo_title when more than keyword is present', () =>{
                 const results = runAnalysis(keywordMatchesPartiallyInHeadline, frontmatterConfiguration);
-                const error = results.find(result => result.title === frontmatterConfiguration.titleField);
+                const error = results.find(result => result.title === frontmatterConfiguration.seoTitleField);
                 assert.ok(error === undefined);
             });
 
             test('does return a validation error for an extra-long headline', () => {
                 const results = runAnalysis(extraLongHeadline, frontmatterConfiguration);
-                const error = results.find(result => result.title === frontmatterConfiguration.titleField);
+                const error = results.find(result => result.title === frontmatterConfiguration.seoTitleField);
                 assert.ok(error);
             });
 
@@ -387,12 +387,12 @@ suite('Extension Test Suite', () => {
             const results = runAnalysis(noMatchingKeywords, frontmatterConfiguration);
 
             test('complains about missing keyword in seo_title', () => {
-                const seoTitle = results.find(result => result.title === frontmatterConfiguration.titleField);
+                const seoTitle = results.find(result => result.title === frontmatterConfiguration.seoTitleField);
                 assert.ok(seoTitle);
             });
 
             test('complains about missing keyword in seo_description', () => {
-                const seoDescription = results.find(result => result.title === frontmatterConfiguration.descriptionField);
+                const seoDescription = results.find(result => result.title === frontmatterConfiguration.seoDescriptionField);
                 assert.ok(seoDescription);
             });
 
@@ -432,7 +432,7 @@ suite('Extension Test Suite', () => {
             });
 
             test("Does complain if there's a title in frontmatter and a first-level headline", () => {
-                const results = runAnalysis(FirstLevelHeadlineAndFrontmatterTitle, frontmatterConfiguration);
+                const results = runAnalysis(firstLevelHeadlineAndFrontmatterTitle, frontmatterConfiguration);
                 const headerError = results.filter(error => error.title === 'Article Title' && error.message === 'Found title in First-Level Headline and Frontmatter');
                 assert.strictEqual(headerError.length, 1);
             });
@@ -443,10 +443,10 @@ suite('Extension Test Suite', () => {
 
             test('returns two findings', () => {
                 const missingFieldResults = results.filter(result =>(
-                    (result.title === frontmatterConfiguration.titleField &&
+                    (result.title === frontmatterConfiguration.seoTitleField &&
                     result.message === 'Field not found')
                     ||
-                    (result.title === frontmatterConfiguration.descriptionField &&
+                    (result.title === frontmatterConfiguration.seoDescriptionField &&
                     result.message === 'Field not found')
                 ));
                 assert.strictEqual(missingFieldResults.length, 2);
