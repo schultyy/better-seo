@@ -1,6 +1,8 @@
 import { Event, EventEmitter, Position, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace } from "vscode";
-import { AnalyzerError, AnalyzerResult, HeaderError, Location, ParagraphError, ResultType, runAnalysis } from "./analyzer";
+import { AnalyzerError, AnalyzerResult, HeaderError, ParagraphError, ResultType } from './analyzer/errors';
+import { runAnalysis } from "./analyzer";
 import * as path from 'path';
+import { Location } from "./analyzer/ast";
 
 export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
     private _onDidChangeTreeData: EventEmitter<ResultsTreeItem | undefined | null | void> = new EventEmitter<ResultsTreeItem | undefined | null | void>();
@@ -128,10 +130,16 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
         return title;
     }
 
-    private static get descriptionAttribute() : string {
+    private static get seoTitleAttribute() : string {
         const configuration = workspace.getConfiguration('betterseo');
-        const description :string = <string> configuration.get('frontmatter.descriptionAttribute')!;
-        return description;
+        const seoTitle :string = <string> configuration.get('frontmatter.seoTitleAttribute')!;
+        return seoTitle;
+    }
+
+    private static get seoDescriptionAttribute() : string {
+        const configuration = workspace.getConfiguration('betterseo');
+        const seoDescription :string = <string> configuration.get('frontmatter.seoDescriptionAttribute')!;
+        return seoDescription;
     }
 
     private analyze() {
@@ -150,7 +158,8 @@ export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
         const markdownFile = currentFile.toString();
         const frontmatterConfig = {
             titleField: TreeProvider.titleAttribute,
-            descriptionField: TreeProvider.descriptionAttribute
+            seoTitleField: TreeProvider.seoTitleAttribute,
+            seoDescriptionField: TreeProvider.seoDescriptionAttribute
         };
 
         this.results = runAnalysis(markdownFile, frontmatterConfig);

@@ -13,7 +13,7 @@
         "type": "git",
         "url": "https://github.com/schultyy/better-seo"
     },
-    "version": "1.8.2",
+    "version": "2.0.0",
     "icon": "resources/better_seo.png",
     "engines": {
         "vscode": "^1.56.0"
@@ -42,15 +42,21 @@
             "properties": {
               "betterseo.frontmatter.titleAttribute": {
                 "type": "string",
-                "default": "seo_title",
+                "default": "title",
                 "pattern": "[\\w_\\d\\w]+",
                 "description": "Specifies the title attribute to look for in the blog post frontmatter"
+                },
+              "betterseo.frontmatter.seoTitleAttribute": {
+                "type": "string",
+                "default": "seo_title",
+                "pattern": "[\\w_\\d\\w]+",
+                "description": "Specifies the SEO title attribute to look for in the blog post frontmatter"
               },
-              "betterseo.frontmatter.descriptionAttribute": {
+              "betterseo.frontmatter.seoDescriptionAttribute": {
                 "type": "string",
                 "default": "seo_description",
                 "pattern": "[\\w_\\d\\w]+",
-                "description": "Specifies the description attribute to look for in the blog post frontmatter"
+                "description": "Specifies the SEO description attribute to look for in the blog post frontmatter"
               }
             }
         },
