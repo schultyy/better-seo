@@ -2,7 +2,7 @@ import matter = require('gray-matter');
 import markdownToAst = require("@textlint/markdown-to-ast");
 import { AnalyzerError, AnalyzerResult, ParagraphError, ResultType } from './errors';
 import { AstChild } from './ast';
-import { validateHeader, validateHeaderStructure } from './header';
+import { validateHeader, validateHeaderStructure } from './title';
 import { analyzeFrontmatter, FrontmatterConfiguration } from './frontmatter';
 
 export function extractKeywords(currentFile: string) :Array<string> {
