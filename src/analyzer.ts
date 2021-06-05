@@ -80,123 +80,113 @@ function doesKeywordPartialMatch(keyword: string, fieldValue: string) : boolean 
 }
 
 export function runAnalysis(markdownFile: string, configuration: FrontmatterConfiguration) : Array<AnalyzerResult> {
-    const fileAnalyzer = new FileAnalyzer(markdownFile);
     const frontmatterAnalyzer = new FrontmatterAnalyzer(markdownFile, configuration);
     const keywords = extractKeywords(markdownFile);
-    const fileResults = fileAnalyzer.analyze(keywords);
-    const frontmatterResults = frontmatterAnalyzer.analyze(keywords);
-    return frontmatterResults.concat(fileResults);
+    return analyze(markdownFile, keywords).concat(frontmatterAnalyzer.analyze(keywords));
 }
 
-export class FileAnalyzer {
-    private readonly children: Array<AstChild>;
-    constructor(public markdownFile: string){
-        const AST = markdownToAst.parse(this.markdownFile);
-        this.children = AST.children;
-    }
-
-    public analyze(keywords: string[]) : Array<AnalyzerResult> {
-        let results: Array<AnalyzerResult> = [];
-
-        results = results.concat(this.validateHeaderStructure());
-        results = results.concat(this.validateHeader(keywords));
-        results = results.concat(keywords.flatMap(keyword => this.validateFirstParagraph(keyword)));
-        results = results.concat(this.validateParagraphLength());
-        results = results.concat(this.validateArticleLength());
-        return results;
-    }
-
-    private validateHeaderStructure() : Array<AnalyzerResult> {
-        const firstLevelHeadlines = this.children.filter(child => child.type === 'Header' && child.depth === 1);
-        if(firstLevelHeadlines.length > 1) {
-            return firstLevelHeadlines.map(firstLevelHeadline => {
-                return new HeaderError(
-                        'Header',
-                        firstLevelHeadline.loc,
-                        'Inconsistent Header Structure. Only one first level Header allowed.',
-                        ResultType.body);
-            });
-        }
-        return [];
-    }
-
-    private validateParagraphLength() : Array<AnalyzerResult> {
-        const paragraphs = this.children.filter(child => child.type === 'Paragraph');
-        const longParagraphErrors = paragraphs.filter(paragraph => {
-            return paragraph.raw
-                            .split(/\s+/)
-                            .length >= 200;
-        })
-        .map((paragraph) => {
-            return new ParagraphError(
-                'Paragraph',
-                paragraph.loc,
-                `Paragraph starting with ${paragraph.raw.substr(0, 20)} has more than 200 characters(${paragraph.raw.length}). Consider breaking it up`,
-                ResultType.body
-            );
+function validateHeaderStructure(children: AstChild[]) : Array<AnalyzerResult> {
+    const firstLevelHeadlines = children.filter(child => child.type === 'Header' && child.depth === 1);
+    if(firstLevelHeadlines.length > 1) {
+        return firstLevelHeadlines.map(firstLevelHeadline => {
+            return new HeaderError(
+                    'Header',
+                    firstLevelHeadline.loc,
+                    'Inconsistent Header Structure. Only one first level Header allowed.',
+                    ResultType.body);
         });
-        return longParagraphErrors;
+    }
+    return [];
+}
+
+function validateHeader(children : AstChild[], keywords: string[]) : Array<AnalyzerResult> {
+    const analyzerResults :AnalyzerResult[] = [];
+    let header = children.find(child => child.type === 'Header' && child.depth === 1);
+    if(!header) {
+        analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
+    }
+    if(header &&keywords[0] && header.raw.indexOf(keywords[0]) === -1) {
+        if(!doesKeywordPartialMatch(keywords[0], header.raw)) {
+            analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keywords[0]} not found`, ResultType.body));
+        }
     }
 
-    private validateFirstParagraph(keyword: string) : Array<AnalyzerResult> {
-        const analyzerResults = [];
-        let firstParagraph = this.children.find(child => child.type === 'Paragraph');
-        let text = firstParagraph?.children?.find(child => child.type === 'Str');
-
-        if(!text) {
-            analyzerResults.push(new AnalyzerError('First Paragraph', 'Not found', ResultType.body));
+    if(header) {
+        const analyzerResult = analyzeTitleForRemainingKeywords(keywords, header);
+        if(analyzerResult) {
+            analyzerResults.push(analyzerResult);
         }
-
-        if(text && text.value.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
-            analyzerResults.push(new AnalyzerError('First Paragraph', `Keyword ${keyword} not found`, ResultType.body));
-        }
-        return analyzerResults;
     }
 
-    private validateHeader(keywords: string[]) : Array<AnalyzerResult> {
-        const analyzerResults :AnalyzerResult[] = [];
-        let header = this.children.find(child => child.type === 'Header' && child.depth === 1);
-        if(!header) {
-            analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
-        }
-        if(header &&keywords[0] && header.raw.indexOf(keywords[0]) === -1) {
-            if(!doesKeywordPartialMatch(keywords[0], header.raw)) {
-                analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keywords[0]} not found`, ResultType.body));
-            }
-        }
+    return analyzerResults;
+}
 
-        if(header) {
-            const analyzerResult = this.analyzeTitleForRemainingKeywords(keywords, header);
-            if(analyzerResult) {
-                analyzerResults.push(analyzerResult);
-            }
-        }
+function analyzeTitleForRemainingKeywords(keywords: string[], header: AstChild) : AnalyzerResult | null {
+    const foundKeywords = keywords.slice(1).filter(keyword => header?.raw.indexOf(keyword) !== -1);
+    if (foundKeywords.length > 0) {
+        return new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body);
+    }
+    return null;
+}
 
-        return analyzerResults;
+function validateFirstParagraph(children : AstChild[], keyword: string) : Array<AnalyzerResult> {
+    const analyzerResults = [];
+    let firstParagraph = children.find(child => child.type === 'Paragraph');
+    let text = firstParagraph?.children?.find(child => child.type === 'Str');
+
+    if(!text) {
+        analyzerResults.push(new AnalyzerError('First Paragraph', 'Not found', ResultType.body));
     }
 
-    private analyzeTitleForRemainingKeywords(keywords: string[], header: AstChild) : AnalyzerResult | null {
-        const foundKeywords = keywords.slice(1).filter(keyword => header?.raw.indexOf(keyword) !== -1);
-        if (foundKeywords.length > 0) {
-            return new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body);
-        }
-        return null;
+    if(text && text.value.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+        analyzerResults.push(new AnalyzerError('First Paragraph', `Keyword ${keyword} not found`, ResultType.body));
     }
+    return analyzerResults;
+}
 
-    private validateArticleLength() : Array<AnalyzerResult> {
-        const paragraphs = this.children.filter(child => child.type === 'Paragraph')
-                                        .filter(child => child.children)
-                                        .flatMap(child => child.children?.filter(grandChild => grandChild.type === 'Str'));
+function validateParagraphLength(children: AstChild[]) : Array<AnalyzerResult> {
+    const paragraphs = children.filter(child => child.type === 'Paragraph');
+    const longParagraphErrors = paragraphs.filter(paragraph => {
+        return paragraph.raw
+                        .split(/\s+/)
+                        .length >= 200;
+    })
+    .map((paragraph) => {
+        return new ParagraphError(
+            'Paragraph',
+            paragraph.loc,
+            `Paragraph starting with ${paragraph.raw.substr(0, 20)} has more than 200 characters(${paragraph.raw.length}). Consider breaking it up`,
+            ResultType.body
+        );
+    });
+    return longParagraphErrors;
+}
 
-        const totalLength = paragraphs.flatMap(textElement => textElement ? textElement.raw.split(/\s+/) : [])
-                                        .reduce((acc, _currentValue) => acc + 1, 0);
-        if (totalLength < 300) {
-            return [
-                new AnalyzerError('Article Length', `Article is too short. Expected: At least 300 Characters. Actual Length: ${totalLength}`, ResultType.body)
-            ];
-        }
-        return [];
+function validateArticleLength(children: AstChild[]) : Array<AnalyzerResult> {
+    const paragraphs = children.filter(child => child.type === 'Paragraph')
+                                    .filter(child => child.children)
+                                    .flatMap(child => child.children?.filter(grandChild => grandChild.type === 'Str'));
+
+    const totalLength = paragraphs.flatMap(textElement => textElement ? textElement.raw.split(/\s+/) : [])
+                                    .reduce((acc, _currentValue) => acc + 1, 0);
+    if (totalLength < 300) {
+        return [
+            new AnalyzerError('Article Length', `Article is too short. Expected: At least 300 Characters. Actual Length: ${totalLength}`, ResultType.body)
+        ];
     }
+    return [];
+}
+
+function analyze(markdownFile : string, keywords: string[]) : Array<AnalyzerResult> {
+    const AST = markdownToAst.parse(markdownFile);
+    const children = AST.children;
+    return [
+        validateHeaderStructure(children),
+        validateHeader(children, keywords),
+        keywords.flatMap(keyword => validateFirstParagraph(children, keyword)),
+        validateParagraphLength(children),
+        validateArticleLength(children)
+    ].flat();
 }
 
 export interface FrontmatterConfiguration {
