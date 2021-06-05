@@ -400,7 +400,7 @@ suite('Extension Test Suite', () => {
                 assert.strictEqual(headerError.length, 2);
             });
 
-            test.skip('Does not return an error when first-level headline is missing and title is configured in Frontmatter', () => {
+            test('Does not return an error when first-level headline is missing and title is configured in Frontmatter', () => {
                 const results = runAnalysis(withoutFirstLevelHeadline, frontmatterConfiguration);
                 const headerError = results.filter(error => error.title === 'Article Title' && error.message === 'Not found');
                 assert.strictEqual(headerError.length, 0);

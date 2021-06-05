@@ -2,8 +2,9 @@ import matter = require('gray-matter');
 import markdownToAst = require("@textlint/markdown-to-ast");
 import { AnalyzerError, AnalyzerResult, ParagraphError, ResultType } from './errors';
 import { AstChild } from './ast';
-import { validateHeader, validateHeaderStructure } from './title';
-import { analyzeFrontmatter, FrontmatterConfiguration } from './frontmatter';
+import { validateTitle, validateHeaderStructure } from './title';
+import { analyzeFrontmatter } from './frontmatter';
+import { FrontmatterConfiguration } from './frontmatterConfiguration';
 
 export function extractKeywords(currentFile: string) :Array<string> {
     const frontmatter = matter(currentFile);
@@ -72,7 +73,7 @@ function analyze(markdownFile : string, keywords: string[]) : Array<AnalyzerResu
     const children = AST.children;
     return [
         validateHeaderStructure(children),
-        validateHeader(children, keywords),
+        validateTitle(markdownFile, children, keywords),
         keywords.flatMap(keyword => validateFirstParagraph(children, keyword)),
         validateParagraphLength(children),
         validateArticleLength(children)

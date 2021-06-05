@@ -1,3 +1,4 @@
+import matter = require("gray-matter");
 import { AstChild } from "./ast";
 import { AnalyzerError, AnalyzerResult, HeaderError, ResultType } from "./errors";
 import { doesKeywordPartialMatch } from "./utils";
@@ -16,22 +17,42 @@ export function validateHeaderStructure(children: AstChild[]) : Array<AnalyzerRe
     return [];
 }
 
-function analyzeTitleForRemainingKeywords(keywords: string[], header: AstChild) : AnalyzerResult | null {
-    const foundKeywords = keywords.slice(1).filter(keyword => header?.raw.indexOf(keyword) !== -1);
+function analyzeTitleForRemainingKeywords(keywords: string[], header: string) : AnalyzerResult | null {
+    const foundKeywords = keywords.slice(1).filter(keyword => header.indexOf(keyword) !== -1);
     if (foundKeywords.length > 0) {
         return new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body);
     }
     return null;
 }
 
-export function validateHeader(children : AstChild[], keywords: string[]) : Array<AnalyzerResult> {
-    const analyzerResults :AnalyzerResult[] = [];
+function isTitlePresent(markdownFile: string, children: AstChild[]) : boolean {
     let header = children.find(child => child.type === 'Header' && child.depth === 1);
     if(!header) {
+        const frontmatter = matter(markdownFile);
+        return !!frontmatter.data['title'];
+    }
+    return true;
+}
+
+function getHeader(markdownFile : string, children: AstChild[]) : string | undefined {
+    const frontmatter = matter(markdownFile);
+    if(frontmatter.data['title']) {
+        return frontmatter.data['title'];
+    }
+    return children.find(child => child.type === 'Header' && child.depth === 1)?.raw;
+}
+
+export function validateTitle(markdownFile: string, children : AstChild[], keywords: string[]) : Array<AnalyzerResult> {
+    const analyzerResults :AnalyzerResult[] = [];
+
+    if(!isTitlePresent(markdownFile, children)) {
         analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
     }
-    if(header &&keywords[0] && header.raw.indexOf(keywords[0]) === -1) {
-        if(!doesKeywordPartialMatch(keywords[0], header.raw)) {
+
+    const header = getHeader(markdownFile, children);
+
+    if(header && keywords[0] && header.indexOf(keywords[0]) === -1) {
+        if(!doesKeywordPartialMatch(keywords[0], header)) {
             analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keywords[0]} not found`, ResultType.body));
         }
     }

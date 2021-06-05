@@ -1,11 +1,7 @@
 import matter = require("gray-matter");
 import { AnalyzerError, AnalyzerResult, ResultType } from "./errors";
+import { FrontmatterConfiguration } from "./frontmatterConfiguration";
 import { doesKeywordPartialMatch } from "./utils";
-
-export interface FrontmatterConfiguration {
-    titleField: string;
-    descriptionField: string;
-}
 
 export function analyzeFrontmatter(markdownFile: string, configuration: FrontmatterConfiguration, keywords: string[]) : Array<AnalyzerResult> {
     const frontmatter = matter(markdownFile);
