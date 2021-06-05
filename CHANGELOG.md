@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.1
+
+- Add additional explanation about the plugin and how to use it.
+
 ## 2.0.0
 
 - Allows for the Blogpost's title to be configured in either the first-level headline or the frontmatter (field is configurable)
