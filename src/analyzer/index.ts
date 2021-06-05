@@ -1,59 +1,10 @@
 import matter = require('gray-matter');
 import markdownToAst = require("@textlint/markdown-to-ast");
+import { AnalyzerError, AnalyzerResult, ParagraphError, ResultType } from './errors';
+import { doesKeywordPartialMatch } from './utils';
+import { AstChild } from './ast';
+import { validateHeader, validateHeaderStructure } from './header';
 
-export enum ResultType {
-    frontmatter,
-    body
-}
-
-export abstract class AnalyzerResult {
-    constructor(public title: string, public message: string, public resultType: ResultType) {}
-}
-
-export class AnalyzerError extends AnalyzerResult {
-    constructor(public title: string, public message: string, public resultType: ResultType) {
-        super(title, message, resultType);
-    }
-}
-
-export interface Position {
-    line: number;
-    column: number;
-}
-
-export interface Location {
-    start: Position;
-    end: Position;
-}
-
-export class ParagraphError extends AnalyzerError {
-    constructor(
-        public title: string,
-        public loc: Location,
-        public message: string,
-        public resultType: ResultType) {
-            super(title, message, resultType);
-    }
-}
-
-export class HeaderError extends AnalyzerError {
-    constructor(
-        public title: string,
-        public loc: Location,
-        public message: string,
-        public resultType: ResultType) {
-            super(title, message, resultType);
-        }
-}
-
-interface AstChild {
-    type: string;
-    value: string;
-    raw: string;
-    depth?: number;
-    loc: Location;
-    children?: Array<AstChild>;
-}
 
 export function extractKeywords(currentFile: string) :Array<string> {
     const frontmatter = matter(currentFile);
@@ -64,68 +15,9 @@ export function extractKeywords(currentFile: string) :Array<string> {
     return keywords;
 }
 
-function doesKeywordPartialMatch(keyword: string, fieldValue: string) : boolean {
-    if(!keyword) {
-        return false;
-    }
-    const splittedKeyword = keyword.split(' ');
-    const foundWordResults = [];
-
-    for(let i = 0; i < splittedKeyword.length; i++) {
-        const currentKeywordPartial = splittedKeyword[i].toLowerCase();
-        foundWordResults.push(fieldValue.toLowerCase().indexOf(currentKeywordPartial) !== -1);
-    }
-
-    return foundWordResults.every(value => value === true);
-}
-
 export function runAnalysis(markdownFile: string, configuration: FrontmatterConfiguration) : Array<AnalyzerResult> {
     const keywords = extractKeywords(markdownFile);
     return analyze(markdownFile, keywords).concat(analyzeFrontmatter(markdownFile, configuration, keywords));
-}
-
-function validateHeaderStructure(children: AstChild[]) : Array<AnalyzerResult> {
-    const firstLevelHeadlines = children.filter(child => child.type === 'Header' && child.depth === 1);
-    if(firstLevelHeadlines.length > 1) {
-        return firstLevelHeadlines.map(firstLevelHeadline => {
-            return new HeaderError(
-                    'Header',
-                    firstLevelHeadline.loc,
-                    'Inconsistent Header Structure. Only one first level Header allowed.',
-                    ResultType.body);
-        });
-    }
-    return [];
-}
-
-function validateHeader(children : AstChild[], keywords: string[]) : Array<AnalyzerResult> {
-    const analyzerResults :AnalyzerResult[] = [];
-    let header = children.find(child => child.type === 'Header' && child.depth === 1);
-    if(!header) {
-        analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
-    }
-    if(header &&keywords[0] && header.raw.indexOf(keywords[0]) === -1) {
-        if(!doesKeywordPartialMatch(keywords[0], header.raw)) {
-            analyzerResults.push(new AnalyzerError('Article Title', `Keyword ${keywords[0]} not found`, ResultType.body));
-        }
-    }
-
-    if(header) {
-        const analyzerResult = analyzeTitleForRemainingKeywords(keywords, header);
-        if(analyzerResult) {
-            analyzerResults.push(analyzerResult);
-        }
-    }
-
-    return analyzerResults;
-}
-
-function analyzeTitleForRemainingKeywords(keywords: string[], header: AstChild) : AnalyzerResult | null {
-    const foundKeywords = keywords.slice(1).filter(keyword => header?.raw.indexOf(keyword) !== -1);
-    if (foundKeywords.length > 0) {
-        return new AnalyzerError('Article Title', 'Article Title should only include the top keyword', ResultType.body);
-    }
-    return null;
 }
 
 function validateFirstParagraph(children : AstChild[], keyword: string) : Array<AnalyzerResult> {

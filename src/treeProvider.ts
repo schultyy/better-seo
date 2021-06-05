@@ -1,6 +1,8 @@
 import { Event, EventEmitter, Position, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace } from "vscode";
-import { AnalyzerError, AnalyzerResult, HeaderError, Location, ParagraphError, ResultType, runAnalysis } from "./analyzer";
+import { AnalyzerError, AnalyzerResult, HeaderError, ParagraphError, ResultType } from './analyzer/errors';
+import { runAnalysis } from "./analyzer";
 import * as path from 'path';
+import { Location } from "./analyzer/ast";
 
 export default class TreeProvider implements TreeDataProvider<ResultsTreeItem> {
     private _onDidChangeTreeData: EventEmitter<ResultsTreeItem | undefined | null | void> = new EventEmitter<ResultsTreeItem | undefined | null | void>();

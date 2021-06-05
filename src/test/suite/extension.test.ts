@@ -5,7 +5,8 @@ import { describe } from 'mocha';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { extractKeywords, HeaderError, ParagraphError, ResultType, runAnalysis } from '../../analyzer';
+import { extractKeywords, runAnalysis } from '../../analyzer';
+import { ParagraphError, ResultType } from '../../analyzer/errors';
 
 function loadMarkdown(filename: string) : string {
     const filePath = path.join(__filename, '..', 'support', filename);
