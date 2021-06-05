@@ -259,6 +259,31 @@ Ut faucibus pulvinar elementum integer enim. Sit amet volutpat consequat mauris 
 Enim lobortis scelerisque fermentum dui faucibus in ornare. Eget gravida cum sociis natoque. Enim ut sem viverra aliquet eget. Mattis rhoncus urna neque viverra justo nec ultrices dui sapien. Eget nunc scelerisque viverra mauris in aliquam sem. Risus at ultrices mi tempus imperdiet nulla malesuada pellentesque elit. Auctor augue mauris augue neque gravida in fermentum et. Aliquet bibendum enim facilisis gravida. In hac habitasse platea dictumst vestibulum rhoncus. Nibh nisl condimentum id venenatis a condimentum vitae sapien pellentesque.
 `;
 
+const FirstLevelHeadlineAndFrontmatterTitle = `---
+Keywords:
+- VSCode
+seo_title: Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet fsdfdsfdsfsdfsdfdsf
+seo_description: It's challenging to sell software development services. Let's explore how to build trust with clients to grow your business sustainably over the long-term.
+title: This and That with VSCode
+---
+
+# This and That with VSCode
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Enim tortor at auctor urna nunc id. Nibh sed pulvinar proin gravida hendrerit. Dolor magna eget est lorem ipsum dolor sit amet. Massa id neque aliquam vestibulum morbi blandit cursus. Dolor magna eget est lorem. Dolor purus non enim praesent elementum facilisis leo vel fringilla. Facilisis volutpat est velit egestas. Eget egestas purus viverra accumsan in nisl. Pellentesque nec nam aliquam sem. Enim praesent elementum facilisis leo vel fringilla est. Est ullamcorper eget nulla facilisi etiam dignissim diam quis enim. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus. Faucibus ornare suspendisse sed nisi lacus. Leo vel orci porta non pulvinar neque laoreet suspendisse interdum. Placerat vestibulum lectus mauris ultrices eros. Facilisis volutpat est velit egestas dui id ornare arcu odio. Tortor condimentum lacinia quis vel eros donec ac.
+
+Consectetur a erat nam at lectus. Vivamus at augue eget arcu dictum varius. Malesuada proin libero nunc consequat interdum varius. Placerat vestibulum lectus mauris ultrices eros in cursus. Lacus sed turpis tincidunt id aliquet risus feugiat in. At quis risus sed vulputate odio ut. Semper feugiat nibh sed pulvinar proin gravida hendrerit lectus a. Aliquam sem fringilla ut morbi tincidunt augue interdum velit. Diam ut venenatis tellus in metus vulputate eu. Nisi lacus sed viverra tellus. Parturient montes nascetur ridiculus mus mauris vitae ultricies leo integer. Massa id neque aliquam vestibulum morbi blandit cursus risus at. Amet justo donec enim diam vulputate ut pharetra sit. Vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam. Amet massa vitae tortor condimentum lacinia quis vel eros. Sit amet nulla facilisi morbi tempus. Tortor vitae purus faucibus ornare suspendisse sed. Arcu cursus vitae congue mauris rhoncus aenean. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Ligula ullamcorper malesuada proin libero nunc consequat interdum varius sit.
+
+## This and That
+
+Habitant morbi tristique senectus et netus et. Quis eleifend quam adipiscing vitae proin sagittis. Porta non pulvinar neque laoreet. Egestas pretium aenean pharetra magna ac placerat vestibulum lectus mauris. Pulvinar mattis nunc sed blandit libero volutpat sed. Interdum varius sit amet mattis vulputate enim. Praesent tristique magna sit amet purus gravida quis blandit turpis. Fermentum odio eu feugiat pretium. Egestas congue quisque egestas diam in arcu. Metus aliquam eleifend mi in. Vivamus arcu felis bibendum ut tristique et. Aliquam ultrices sagittis orci a. At in tellus integer feugiat. Vulputate sapien nec sagittis aliquam malesuada bibendum arcu vitae elementum. Vestibulum morbi blandit cursus risus at ultrices mi tempus imperdiet. Urna porttitor rhoncus dolor purus non. Ut diam quam nulla porttitor. Dolor sit amet consectetur adipiscing elit pellentesque habitant. Sed viverra tellus in hac.
+
+Ut faucibus pulvinar elementum integer enim. Sit amet volutpat consequat mauris nunc congue nisi. Cursus mattis molestie a iaculis at erat pellentesque adipiscing. Pulvinar etiam non quam lacus suspendisse. Libero justo laoreet sit amet cursus sit. Vivamus at augue eget arcu dictum varius. Vestibulum lorem sed risus ultricies tristique nulla. Vel fringilla est ullamcorper eget nulla. Purus sit amet volutpat consequat mauris nunc congue nisi. In hendrerit gravida rutrum quisque non. Vel pretium lectus quam id. Suscipit adipiscing bibendum est ultricies integer. Morbi tempus iaculis urna id volutpat lacus laoreet non curabitur. Consectetur a erat nam at lectus urna duis convallis convallis.
+
+## Also to Consider
+
+Enim lobortis scelerisque fermentum dui faucibus in ornare. Eget gravida cum sociis natoque. Enim ut sem viverra aliquet eget. Mattis rhoncus urna neque viverra justo nec ultrices dui sapien. Eget nunc scelerisque viverra mauris in aliquam sem. Risus at ultrices mi tempus imperdiet nulla malesuada pellentesque elit. Auctor augue mauris augue neque gravida in fermentum et. Aliquet bibendum enim facilisis gravida. In hac habitasse platea dictumst vestibulum rhoncus. Nibh nisl condimentum id venenatis a condimentum vitae sapien pellentesque.
+`;
+
 suite('Extension Test Suite', () => {
     const frontmatterConfiguration = {
         titleField: 'seo_title',
@@ -404,6 +429,12 @@ suite('Extension Test Suite', () => {
                 const results = runAnalysis(withoutFirstLevelHeadline, frontmatterConfiguration);
                 const headerError = results.filter(error => error.title === 'Article Title' && error.message === 'Not found');
                 assert.strictEqual(headerError.length, 0);
+            });
+
+            test("Does complain if there's a title in frontmatter and a first-level headline", () => {
+                const results = runAnalysis(FirstLevelHeadlineAndFrontmatterTitle, frontmatterConfiguration);
+                const headerError = results.filter(error => error.title === 'Article Title' && error.message === 'Found title in First-Level Headline and Frontmatter');
+                assert.strictEqual(headerError.length, 1);
             });
         });
 

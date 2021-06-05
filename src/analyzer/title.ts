@@ -34,6 +34,13 @@ function isTitlePresent(markdownFile: string, children: AstChild[]) : boolean {
     return true;
 }
 
+function hasDuplicateTitle(markdownFile: string, children: AstChild[]) : boolean {
+    const frontmatter = matter(markdownFile);
+    let firstLevelHeadline = children.find(child => child.type === 'Header' && child.depth === 1);
+    const frontmatterTitle = frontmatter.data['title'];
+    return firstLevelHeadline && frontmatterTitle;
+}
+
 function getHeader(markdownFile : string, children: AstChild[]) : string | undefined {
     const frontmatter = matter(markdownFile);
     if(frontmatter.data['title']) {
@@ -47,6 +54,10 @@ export function validateTitle(markdownFile: string, children : AstChild[], keywo
 
     if(!isTitlePresent(markdownFile, children)) {
         analyzerResults.push(new AnalyzerError('Article Title', 'Not found', ResultType.body));
+    }
+
+    if(hasDuplicateTitle(markdownFile, children)) {
+        analyzerResults.push(new AnalyzerError('Article Title', 'Found title in First-Level Headline and Frontmatter', ResultType.body));
     }
 
     const header = getHeader(markdownFile, children);
